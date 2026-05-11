@@ -1,0 +1,2554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>시티 제품 매니징 플랫폼</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F2;
+  --surface:#FFFFFF;
+  --border:rgba(0,0,0,0.07);
+  --border-md:rgba(0,0,0,0.13);
+  --text:#1A1A18;
+  --text-sub:#6B6B67;
+  --text-muted:#A8A8A4;
+  --accent:#2D5BE3;
+  --accent-soft:#EEF2FD;
+  --radius:10px;
+  --radius-sm:6px;
+  --font:'Pretendard',-apple-system,sans-serif;
+  --mono:'DM Mono',monospace;
+  --wd-bg:#F6F5F0;--wd-alt:#EEECEA;--wd-t:#444441;
+  --be-bg:#F4F3FE;--be-alt:#EFEDFC;--be-t:#3C3489;
+  --fe-bg:#EDF9F4;--fe-alt:#E4F5EE;--fe-t:#085041;
+  --des-bg:#FDF6EA;--des-alt:#F8F0E2;--des-t:#633806;
+  --mkt-bg:#FDF2EE;--mkt-alt:#F8EAE4;--mkt-t:#712B13;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
+.shell{display:flex;flex-direction:column;min-height:100vh}
+
+/* Topbar */
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 24px;height:50px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.logo{font-size:14px;font-weight:600;letter-spacing:-0.3px}
+.logo em{color:var(--accent);font-style:normal}
+.toolbar{display:flex;gap:8px;align-items:center}
+select{
+  font-family:var(--font);font-size:12px;padding:5px 10px;
+  border:1px solid var(--border-md);border-radius:var(--radius-sm);
+  background:var(--bg);color:var(--text);cursor:pointer;outline:none;
+}
+select:focus{border-color:var(--accent)}
+.btn{
+  font-family:var(--font);font-size:12px;font-weight:500;
+  padding:6px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--border-md);background:var(--surface);
+  color:var(--text);cursor:pointer;transition:background .15s;
+}
+.btn:hover{background:var(--bg)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#2450c8}
+
+/* Main */
+.main{padding:20px 24px;flex:1}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface)}
+
+/* Table */
+table{border-collapse:collapse;font-size:11px;white-space:nowrap}
+th,td{border:0.5px solid rgba(0,0,0,0.08)}
+
+.th-group{
+  text-align:center;font-size:10px;font-weight:600;
+  padding:6px 8px;color:var(--text);background:#F0EFF0;
+}
+.th-sub{
+  text-align:center;font-size:10px;font-weight:500;
+  padding:5px 7px;color:var(--text-sub);background:#F5F5F3;
+}
+.grp-wd{background:#EEECEA;color:var(--wd-t)}
+.grp-be{background:#E9E8FC;color:var(--be-t)}
+.grp-fe{background:#DDF3EB;color:var(--fe-t)}
+.grp-des{background:#FAEDDA;color:var(--des-t)}
+.grp-mkt{background:#FAE8E2;color:var(--mkt-t)}
+
+td{padding:10px 8px;vertical-align:middle;color:var(--text)}
+.td-date{
+  text-align:center;font-size:11px;font-weight:600;
+  background:#F5F5F3;padding:6px 12px;white-space:nowrap;
+}
+.chip{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.chip-admin{background:#E6F1FB;color:#0C447C}
+.chip-siti{background:#DDF3EB;color:#085041}
+.ver{font-size:10px;color:var(--text-muted);font-family:var(--mono);text-align:center;padding:6px 6px}
+.name-cell{font-size:11px;font-weight:500;color:var(--text);white-space:normal;word-break:keep-all;min-width:80px;max-width:180px;text-align:center}
+.content-cell{font-size:11px;color:var(--text-sub);min-width:56px;text-align:center;white-space:nowrap}
+.detail-cell{font-size:11px;color:var(--text-sub);min-width:160px;max-width:320px;white-space:normal;line-height:1.5;text-align:left;word-break:keep-all}
+.task-cell{font-size:11px;color:var(--text-sub);min-width:72px;max-width:110px;white-space:normal;line-height:1.45;text-align:left}
+.wd-expand{display:none}
+.wd-expanded .wd-expand{display:table-cell}
+.sprint-cell{position:relative;text-align:center;font-size:11px;font-weight:500;color:var(--text-sub);vertical-align:middle;cursor:default}
+.sprint-cell .sprint-actions{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);gap:4px;align-items:center;justify-content:center}
+.sprint-cell:hover .sprint-actions{display:inline-flex}
+.sprint-cell:hover .sprint-label{opacity:0}
+.sprint-act-btn{width:18px;height:18px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;padding:0;border-radius:3px;display:inline-flex;align-items:center;justify-content:center}
+.sprint-act-btn:hover{background:rgba(0,0,0,0.08)}
+.sprint-act-btn.edit:hover{background:rgba(59,130,246,0.1);color:#3B82F6}
+.sprint-act-btn.del:hover{background:rgba(217,64,64,0.1);color:#D94040}
+.wd-cell{text-align:center !important;vertical-align:middle !important;font-size:11px;font-weight:500;padding:10px 6px}
+.month-sep td{border-top:2px solid rgba(0,0,0,0.22) !important}
+
+/* 타임라인 오버레이 */
+.tl-wrap{position:relative}
+#tlOverlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
+.tl-bar{
+  position:absolute;border-radius:3px;opacity:0.82;
+  display:flex;align-items:center;justify-content:center;padding:0 6px;gap:4px;
+  font-size:10px;font-weight:600;color:#fff;
+  white-space:nowrap;overflow:hidden;pointer-events:auto;
+  cursor:default;transition:opacity .15s;
+  height:100%;max-height:100%;
+}
+.tl-bar:hover{opacity:1}
+.tl-label-text{flex:1;overflow:hidden;text-overflow:ellipsis;text-align:center;transition:opacity .15s;white-space:nowrap;min-width:0}
+.tl-bar:hover .tl-label-text{opacity:0}
+.tl-actions{display:none;align-items:center;gap:3px;flex-shrink:0;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.tl-bar:hover .tl-actions{display:flex}
+.tl-act-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:3px;padding:0;
+  border:none;background:rgba(255,255,255,0.25);color:#fff;
+  cursor:pointer;flex-shrink:0;transition:background .12s;
+}
+.tl-handle{
+  position:absolute;left:0;right:0;height:8px;
+  cursor:ns-resize;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+}
+.tl-handle::after{
+  content:'';display:block;
+  width:24px;height:2px;border-radius:1px;
+  background:rgba(255,255,255,0.5);
+}
+.tl-handle-top{top:0}
+.tl-handle-bottom{bottom:0}
+.tl-entry-row{display:grid;grid-template-columns:64px 80px 1fr 1fr 1fr 24px;gap:5px;align-items:center}
+.tl-entry-row select,.tl-entry-row input{
+  font-family:var(--font);font-size:11px;padding:5px 7px;
+  border:1px solid var(--border-md);border-radius:var(--radius-sm);
+  background:var(--surface);color:var(--text);outline:none;width:100%;
+}
+.tl-entry-row select:focus,.tl-entry-row input:focus{border-color:var(--accent)}
+
+/* 아이콘 버튼 */
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:5px;
+  border:0.5px solid var(--border-md);background:var(--surface);
+  color:var(--text-muted);cursor:pointer;padding:0;
+  transition:all .12s;flex-shrink:0;
+}
+.icon-btn:hover{background:var(--bg);color:var(--text);border-color:var(--border-md)}
+.icon-btn.edit:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.icon-btn.del:hover{background:#FDEAEA;color:#A32D2D;border-color:#F09595}
+
+/* Modal */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(20,20,18,.45);z-index:200;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(2px);
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surface);border-radius:var(--radius);
+  border:1px solid var(--border-md);padding:24px;width:500px;
+  max-height:90vh;overflow-y:auto;
+  animation:slideup .18s ease;
+}
+@keyframes slideup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:18px;color:var(--text)}
+.fsec{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:14px 0 8px}
+.fg label{display:block;font-size:10px;font-weight:500;color:var(--text-muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+.fg input,.fg select{
+  width:100%;font-family:var(--font);font-size:12px;
+  padding:7px 10px;border:1px solid var(--border-md);
+  border-radius:var(--radius-sm);background:var(--bg);
+  color:var(--text);outline:none;
+}
+.fg input:focus,.fg select:focus{border-color:var(--accent);background:var(--surface)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--text);color:#fff;font-size:12px;
+  padding:9px 18px;border-radius:var(--radius-sm);
+  opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button onclick="toggleKPI()" id="kpiBtn" title="KPI 지표" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border-md);background:var(--surface);color:var(--text-sub);cursor:pointer;transition:all .15s;padding:0;flex-shrink:0" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="if(!kpiOpen){this.style.borderColor='var(--border-md)';this.style.color='var(--text-sub)'}">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1.5" y="1.5" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+        <line x1="5.5" y1="1.5" x2="5.5" y2="14.5" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+    </button>
+    <div class="logo">SITI 개발 세부 일정</div>
+  </div>
+  <div class="toolbar">
+    <button class="btn" onclick="openSprintModal()">+ 스프린트 일정</button>
+    <button class="btn" onclick="openWeekModal()" style="background:#1A1A18;color:#fff;border-color:#1A1A18">+ 배포 일정</button>
+    <button class="btn btn-primary" onclick="openTaskModal()">+ 작업 일정</button>
+  </div>
+</div>
+
+<div style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:12px;color:var(--text-muted)">Siti 배포: <span id="sitiCount" style="font-weight:600;color:var(--text)">0건</span></span>
+    <span style="color:var(--border-md)">·</span>
+    <span style="font-size:12px;color:var(--text-muted)">Admin 배포: <span id="adminCount" style="font-weight:600;color:var(--text)">0건</span></span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:12px;color:var(--text-muted)">제품</span>
+    <select id="filterSel" onchange="render()" style="font-size:12px;padding:4px 8px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);cursor:pointer;outline:none">
+      <option value="">전체</option>
+      <option value="Admin">Admin</option>
+      <option value="Siti">Siti</option>
+    </select>
+    <span style="font-size:12px;color:var(--text-muted);margin-left:4px">메뉴</span>
+    <select id="filterMenu" onchange="render()" style="font-size:12px;padding:4px 8px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);cursor:pointer;outline:none">
+      <option value="">전체</option>
+      <option>홈</option>
+      <option>티켓북</option>
+      <option>커뮤니티</option>
+      <option>보관함</option>
+      <option>프로필</option>
+      <option>공연</option>
+      <option>채널</option>
+      <option>DB</option>
+      <option>전체</option>
+    </select>
+  </div>
+</div>
+
+<div class="main">
+  <div class="table-wrap tl-wrap">
+    <div id="tlOverlay"></div>
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th class="th-group" rowspan="2" style="min-width:60px;background:#F5F5F3"></th>
+          <th class="th-group grp-wd" id="wdGroupTh" colspan="1">
+            <span onclick="toggleWd()" style="cursor:pointer;user-select:none">워킹데이</span>
+          </th>
+          <th class="th-group" rowspan="2" style="min-width:72px">스프린트</th>
+          <th class="th-group" rowspan="2" style="min-width:72px">배포일</th>
+          <th class="th-group" rowspan="2" style="min-width:68px">완료</th>
+          <th class="th-group" rowspan="2" style="min-width:52px">제품</th>
+          <th class="th-group" rowspan="2" style="min-width:56px">버전</th>
+          <th class="th-group" rowspan="2" style="min-width:120px">명칭</th>
+          <th class="th-group" colspan="2">업데이트 상세</th>
+          <th class="th-group grp-be" colspan="3">BE</th>
+          <th class="th-group grp-fe" colspan="3">FE</th>
+          <th class="th-group grp-des" colspan="3">Des</th>
+          <th class="th-group grp-mkt" colspan="2">MKT</th>
+        </tr>
+        <tr>
+          <th class="th-sub" style="background:var(--wd-bg);color:var(--wd-t);min-width:36px">팀</th>
+          <th class="th-sub wd-expand" style="background:var(--be-bg);color:var(--be-t);min-width:32px">BE</th>
+          <th class="th-sub wd-expand" style="background:var(--fe-bg);color:var(--fe-t);min-width:32px">FE</th>
+          <th class="th-sub wd-expand" style="background:var(--des-bg);color:var(--des-t);min-width:36px">Des</th>
+          <th class="th-sub wd-expand" style="background:var(--mkt-bg);color:var(--mkt-t);min-width:36px">MKT</th>
+          <th class="th-sub" style="min-width:64px">메뉴</th>
+          <th class="th-sub" style="min-width:200px">상세 내용</th>
+          <th class="th-sub" style="background:var(--be-bg);min-width:80px" data-col="be_siti">Siti</th>
+          <th class="th-sub" style="background:var(--be-bg);min-width:80px" data-col="be_admin">Admin</th>
+          <th class="th-sub" style="background:var(--be-bg);min-width:44px" data-col="be_data">Data</th>
+          <th class="th-sub" style="background:var(--fe-bg);min-width:80px" data-col="fe_siti">Siti</th>
+          <th class="th-sub" style="background:var(--fe-bg);min-width:80px" data-col="fe_admin">Admin</th>
+          <th class="th-sub" style="background:var(--fe-bg);min-width:90px" data-col="fe_event">Event Code</th>
+          <th class="th-sub" style="background:var(--des-bg);min-width:80px" data-col="des_siti">Siti</th>
+          <th class="th-sub" style="background:var(--des-bg);min-width:60px" data-col="des_admin">Admin</th>
+          <th class="th-sub" style="background:var(--des-bg);min-width:44px" data-col="des_mkt">MKT</th>
+          <th class="th-sub" style="background:var(--mkt-bg);min-width:100px" data-col="mkt_cont">Contents</th>
+          <th class="th-sub" style="background:var(--mkt-bg);min-width:90px" data-col="mkt_evt">Events</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<!-- 주간 일정 모달 (새) -->
+<div class="modal-overlay" id="sprintModal">
+  <div class="modal" style="width:500px;max-height:90vh;overflow-y:auto">
+    <div class="modal-title">+ 스프린트 일정</div>
+
+    <!-- 1. 스프린트 번호 -->
+    <div class="fg" style="margin-bottom:12px">
+      <label>스프린트 <span style="color:#D94040">*</span></label>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;font-weight:500;color:var(--text-sub);white-space:nowrap">스프린트</span>
+        <input id="sp-num" type="number" min="1" placeholder="숫자 입력" oninput="onSprintNumChange(this.value)" style="flex:1;font-family:var(--font);font-size:12px;padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none"/>
+      </div>
+      <div id="sp-num-msg" style="font-size:11px;color:#D94040;margin-top:4px;display:none">이미 존재하는 스프린트 번호입니다.</div>
+    </div>
+
+    <!-- 2. 스프린트 기간 -->
+    <div class="fg" style="margin-bottom:12px">
+      <label>스프린트 기간 <span style="color:#D94040">*</span></label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="sp-start-picker" type="date" min="2026-01-01" max="2027-12-31" onchange="onSprintStartChange(this.value)" style="flex:1;font-family:var(--font);font-size:12px;padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none;cursor:pointer"/>
+        <span style="font-size:11px;color:var(--text-muted)">~</span>
+        <div id="sp-end-display" style="flex:1;font-family:var(--font);font-size:12px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-sub);text-align:center">자동 계산</div>
+        <input type="hidden" id="sp-end-picker"/>
+      </div>
+      <div id="sp-period" style="font-size:11px;color:var(--text-sub);margin-top:4px">시작일과 종료일을 선택해주세요</div>
+    </div>
+
+    <!-- 3. 워킹데이 (날짜 체크박스) -->
+    <div style="margin-bottom:14px">
+      <div class="fsec" style="margin-top:0;margin-bottom:8px">워킹데이 <span style="color:#D94040">*</span></div>
+      <div id="sp-wd-grid" style="display:flex;flex-direction:column;gap:8px">
+        <!-- JS로 동적 생성 -->
+        <div style="font-size:11px;color:var(--text-muted)">스프린트 번호를 입력하면 날짜가 표시됩니다</div>
+      </div>
+      <!-- 팀 합계 표시 -->
+      <div style="margin-top:8px;padding:8px 10px;background:var(--wd-bg);border-radius:var(--radius-sm);display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px;color:var(--wd-t)">팀 워킹데이</span>
+        <div id="sp-wd-team-display" style="font-weight:600;font-size:13px;color:var(--wd-t)">5일</div>
+        <input type="hidden" id="sp-wd-team" value="5"/>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSprintModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitSprintRow()">추가하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 배포 일정 모달 -->
+<div class="modal-overlay" id="weekModal">
+  <div class="modal" style="width:460px">
+    <div class="modal-title">+ 배포 일정</div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>스프린트 <span style="color:#D94040">*</span></label>
+      <select id="w-sprint" style="width:100%" onchange="onSprintChange(this.value)">
+        <option value="">— 선택 —</option>
+      </select>
+    </div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>배포일 <span style="color:#D94040">*</span></label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="w-date-picker" type="date" onchange="onDateChange(this.value)" style="flex:1;font-family:var(--font);font-size:12px;padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none;cursor:pointer"/>
+        <div id="w-date-preview" style="font-size:12px;font-weight:500;color:var(--text-sub);min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);text-align:center;white-space:nowrap">-</div>
+      </div>
+      <input id="w-date" type="hidden" value=""/>
+    </div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>제품 <span style="color:#D94040">*</span></label>
+      <select id="w-product" style="width:100%">
+        <option value="Siti" selected>Siti</option>
+        <option value="Admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>버전</label>
+      <input id="w-ver" type="text" placeholder="예: v2.5.0" style="width:100%"/>
+    </div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>명칭 <span style="color:#D94040">*</span></label>
+      <input id="w-name" type="text" placeholder="예: 이벤트 대응" style="width:100%"/>
+    </div>
+
+    <div class="fsec" style="margin-top:4px">업데이트 상세</div>
+
+    <div id="w-pairs"></div>
+    <button onclick="addPair()" style="width:100%;margin-top:6px;padding:7px;font-family:var(--font);font-size:12px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:transparent;color:var(--text-sub);cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--accent-soft)';this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-sub)';this.style.borderColor='var(--border-md)'">+ 업데이트 상세 추가</button>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeWeekModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitWeekRow()">추가하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 작업 일정 모달 -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal" style="width:440px">
+    <div class="modal-title">+ 작업 일정</div>
+
+    <div class="fsec" style="margin-top:0;margin-bottom:10px">타임라인</div>
+    <div id="timelineEntries" style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px"></div>
+
+    <button onclick="addTimelineEntry()" style="width:100%;margin-top:4px;padding:7px;font-family:var(--font);font-size:12px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:transparent;color:var(--text-sub);cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--accent-soft)';this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-sub)';this.style.borderColor='var(--border-md)'">+ 타임라인 추가</button>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeTaskModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitTaskRow()">추가하기</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#kpiPanel{
+  position:fixed;top:50px;left:0;width:300px;height:calc(100vh - 50px);
+  background:var(--surface);border-right:1px solid var(--border-md);
+  z-index:90;transform:translateX(-100%);transition:transform .22s ease;
+  overflow-y:auto;padding:18px 16px;
+}
+#kpiPanel.open{transform:translateX(0)}
+.kpi-quarter{margin-bottom:6px;border:0.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.kpi-q-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;cursor:pointer;background:var(--bg);
+  font-size:12px;font-weight:600;color:var(--text);
+  user-select:none;transition:background .12s;
+}
+.kpi-q-header:hover{background:#EEECEA}
+.kpi-q-left{display:flex;align-items:center;gap:6px}
+.kpi-q-arrow{font-size:10px;color:var(--text-muted);transition:transform .18s;display:inline-block}
+.kpi-q-arrow.open{transform:rotate(90deg)}
+.kpi-body{display:none;padding:0}
+.kpi-body.open{display:block}
+
+/* 뷰 모드 */
+.kpi-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-top:0.5px solid var(--border);gap:6px}
+.kpi-lbl{font-size:11px;color:var(--text-sub);line-height:1.4;flex:1}
+.kpi-lbl small{display:block;font-size:10px;color:var(--text-muted)}
+.kpi-val{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;font-family:var(--mono)}
+.kpi-item-actions{display:flex;gap:3px;opacity:0;transition:opacity .12s;flex-shrink:0}
+.kpi-item:hover .kpi-item-actions{opacity:1}
+.kpi-item-actions .icon-btn{width:22px;height:22px;border-radius:4px}
+
+/* 편집 행 */
+.kpi-edit-row{padding:8px 10px;border-top:0.5px solid var(--border);background:var(--accent-soft)}
+.kpi-edit-row input{
+  font-family:var(--font);font-size:11px;padding:4px 7px;
+  border:1px solid var(--border-md);border-radius:4px;
+  background:var(--surface);color:var(--text);outline:none;width:100%;margin-bottom:4px;
+}
+.kpi-edit-row input:focus{border-color:var(--accent)}
+.kpi-edit-btns{display:flex;gap:4px;justify-content:flex-end}
+.kpi-edit-btns button{font-size:10px;padding:3px 8px;border-radius:4px;border:0.5px solid var(--border-md);background:var(--surface);color:var(--text-sub);cursor:pointer}
+.kpi-edit-btns .save{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* 추가 버튼 */
+.kpi-add-btn{width:100%;padding:7px;font-family:var(--font);font-size:11px;border:none;border-top:0.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;text-align:center;transition:all .12s}
+.kpi-add-btn:hover{background:var(--accent-soft);color:var(--accent)}
+</style>
+
+<div id="kpiPanel">
+  <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:12px">연간 KPI 지표</div>
+  <div id="kpiQuarters"></div>
+</div>
+
+<!-- 타임라인 삭제 확인 모달 -->
+<div class="modal-overlay" id="tlDeleteModal">
+  <div class="modal" style="width:360px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:10px;color:var(--text)">타임라인 삭제</div>
+    <div style="font-size:13px;color:var(--text-sub);line-height:1.6;margin-bottom:6px">이 타임라인을 삭제하시겠습니까?</div>
+    <div id="tlDeleteTarget" style="font-size:12px;font-weight:500;color:var(--text);background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:18px;border:1px solid var(--border)"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeTlDeleteModal()">취소</button>
+      <button class="btn" style="background:#FDEAEA;color:#A32D2D;border-color:#F09595" onclick="executeTlDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 스프린트 삭제 확인 모달 -->
+<div class="modal-overlay" id="sprintDeleteModal">
+  <div class="modal" style="width:360px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:10px;color:var(--text)">스프린트 일정 삭제</div>
+    <div style="font-size:13px;color:var(--text-sub);line-height:1.6;margin-bottom:6px">이 스프린트 일정을 삭제하시겠습니까?</div>
+    <div id="sprintDeleteTarget" style="font-size:12px;font-weight:500;color:var(--text);background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:18px;border:1px solid var(--border)"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSprintDeleteModal()">취소</button>
+      <button class="btn" style="background:#FDEAEA;color:#A32D2D;border-color:#F09595" onclick="executeSprintDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 삭제 확인 모달 -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:360px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:10px;color:var(--text)">배포 일정 삭제</div>
+    <div style="font-size:13px;color:var(--text-sub);line-height:1.6;margin-bottom:6px">이 일정을 삭제하시겠습니까?</div>
+    <div id="deleteTarget" style="font-size:12px;font-weight:500;color:var(--text);background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:18px;border:1px solid var(--border)"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeDeleteModal()">취소</button>
+      <button class="btn" id="confirmDeleteBtn" style="background:#FDEAEA;color:#A32D2D;border-color:#F09595" onclick="executeDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Supabase 연동 ─────────────────────────────────────
+const SUPA_URL='https://zzpaazpzkdfwvcjcweor.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6cGFhenB6a2Rmd3ZjamN3ZW9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMjQ4MDEsImV4cCI6MjA5MzgwMDgwMX0.Q899L3oHJL-T34wpHa0iP_nSZmvchHE5Jjh2Gl7Hp_s';
+
+const supaHeaders={
+  'Content-Type':'application/json',
+  'apikey':SUPA_KEY,
+  'Authorization':'Bearer '+SUPA_KEY,
+  'Prefer':'return=minimal',
+};
+
+async function supaGet(table){
+  const res=await fetch(`${SUPA_URL}/rest/v1/${table}?select=*&order=id.asc`,{headers:supaHeaders});
+  return res.json();
+}
+
+async function supaReplace(table,data){
+  // 기존 데이터 전체 삭제 후 새로 삽입
+  await fetch(`${SUPA_URL}/rest/v1/${table}?id=gte.0`,{method:'DELETE',headers:supaHeaders});
+  if(!data||data.length===0) return;
+  await fetch(`${SUPA_URL}/rest/v1/${table}`,{
+    method:'POST',
+    headers:{...supaHeaders,'Prefer':'return=minimal'},
+    body:JSON.stringify(data),
+  });
+}
+
+async function dbLoad(){
+  try{
+    const [deps,sps,tls,kpis]=await Promise.all([
+      supaGet('deployments'),
+      supaGet('sprints'),
+      supaGet('timelines'),
+      supaGet('kpi'),
+    ]);
+    const hasData=deps?.length||sps?.length||tls?.length||kpis?.length;
+    if(hasData){
+      rows.length=0; sprintRows.length=0; timelines.length=0; kpiData.length=0;
+    }
+    if(deps?.length) rows.push(...deps.map(r=>({...r,_sprintNum:r.sprint_num,_groupKey:r.group_key})));
+    if(sps?.length) sprintRows.push(...sps.map(s=>({
+      ...s,
+      sprintNum:Number(s.sprint_num),
+      startDate:s.start_date||'',
+      endDate:s.end_date||'',
+      checkedDates:s.checked_dates?JSON.parse(s.checked_dates):null,
+      _isSprint:true,
+    })));
+    if(tls?.length) timelines.push(...tls.map(t=>({...t,startDate:t.start_date,endDate:t.end_date,days:Number(t.days)||0})));
+    if(kpis?.length){
+      const map={};
+      kpis.forEach(r=>{
+        if(!map[r.q]) map[r.q]={q:r.q,open:r.open===true||r.open==='true',items:[]};
+        if(r.label) map[r.q].items.push({label:r.label,note:r.note||'',value:r.value||''});
+      });
+      kpiData.push(...Object.values(map));
+    }
+    render(); renderKPI(); setTimeout(drawTimelines,80);
+    console.log('DB 불러오기 완료');
+  } catch(e){ console.warn('DB 불러오기 실패:', e.message); }
+}
+
+let _saveTimer=null;
+function dbSave(){
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(async()=>{
+    try{
+      // 배포일정
+      const deps=rows.map(r=>({
+        date:r.date,product:r.product,ver:r.ver,name:r.name,menu:r.menu,detail:r.detail,
+        wd_team:r.wd_team,wd_be:r.wd_be,wd_fe:r.wd_fe,wd_des:r.wd_des,wd_mkt:r.wd_mkt,
+        be_siti:r.be_siti,be_admin:r.be_admin,be_data:r.be_data,
+        fe_siti:r.fe_siti,fe_admin:r.fe_admin,fe_event:r.fe_event,
+        des_siti:r.des_siti,des_admin:r.des_admin,des_mkt:r.des_mkt,
+        mkt_cont:r.mkt_cont,mkt_evt:r.mkt_evt,status:r.status,
+        sprint_num:r._sprintNum||'',group_key:r._groupKey||'',
+      }));
+      // 스프린트
+      const sps=sprintRows.map(s=>({
+        sprint_num:s.sprintNum,
+        wd_team:s.wd_team,wd_be:s.wd_be,
+        wd_fe:s.wd_fe,wd_des:s.wd_des,wd_mkt:s.wd_mkt,
+        start_date:s.startDate||'',
+        end_date:s.endDate||'',
+        checked_dates:s.checkedDates?JSON.stringify(s.checkedDates):'',
+      }));
+      // 타임라인
+      const tls=timelines.map(t=>({
+        team:t.team,col:t.col,start_date:t.startDate,end_date:t.endDate,
+        label:t.label,days:t.days||0,
+      }));
+      // KPI
+      const kpis=[];
+      kpiData.forEach(q=>{
+        q.items.forEach((item,i)=>kpis.push({q:q.q,open:i===0?q.open:false,label:item.label,note:item.note||'',value:item.value||''}));
+        if(q.items.length===0) kpis.push({q:q.q,open:q.open,label:'',note:'',value:''});
+      });
+
+      await Promise.all([
+        supaReplace('deployments',deps),
+        supaReplace('sprints',sps),
+        supaReplace('timelines',tls),
+        supaReplace('kpi',kpis),
+      ]);
+      console.log('DB 저장 완료');
+    } catch(e){ console.warn('DB 저장 실패:', e.message); }
+  }, 800);
+}
+
+const rows=[];
+
+const SVG_PEN='<svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 1.5L11.5 3.5L4.5 10.5H2.5V8.5L9.5 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 3L10 5" stroke="currentColor" stroke-width="1.2"/></svg>';
+const SVG_TRASH='<svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4H11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M5 4V2.5H8V4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 4L4 10.5H9L9.5 4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+
+const kpiData=[
+  {q:'1분기',open:false,items:[]},
+  {q:'2분기',open:false,items:[]},
+  {q:'3분기',open:false,items:[]},
+  {q:'4분기',open:false,items:[]},
+];
+
+function renderKPI(){
+  const container=document.getElementById('kpiQuarters');
+  container.innerHTML=kpiData.map((q,qi)=>`
+    <div class="kpi-quarter">
+      <div class="kpi-q-header" onclick="toggleQ(${qi})">
+        <div class="kpi-q-left">
+          <span class="kpi-q-arrow ${q.open?'open':''}">▶</span>
+          <span>${q.q}</span>
+        </div>
+        <span style="font-size:10px;color:var(--text-muted);font-weight:400">${q.items.length}개</span>
+      </div>
+      <div class="kpi-body ${q.open?'open':''}">
+        ${q.items.map((item,ii)=>`
+          <div class="kpi-item" id="kpi-item-${qi}-${ii}">
+            <div style="flex:1;min-width:0">
+              <div class="kpi-lbl">${item.label}${item.note?`<small>${item.note}</small>`:''}</div>
+            </div>
+            <span class="kpi-val">${item.value}</span>
+            <div class="kpi-item-actions">
+              <button class="icon-btn edit" onclick="startEditKPI(${qi},${ii},event)" title="수정">${SVG_PEN}</button>
+              <button class="icon-btn del" onclick="deleteKPI(${qi},${ii})" title="삭제">${SVG_TRASH}</button>
+            </div>
+          </div>
+        `).join('')}
+        <button class="kpi-add-btn" onclick="startAddKPI(${qi},event)">+ 항목 추가</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// 전역 스프린트 수요일 계산 헬퍼
+function getSprintWednesdayTs(dateStr){
+  const m=dateStr.match(/(\d+)\/(\d+)/);
+  if(!m) return null;
+  const d=new Date(2026,parseInt(m[1])-1,parseInt(m[2]));
+  const dow=d.getDay();
+  let diff;
+  if(dow===3) diff=0;
+  else if(dow===4) diff=-1;
+  else if(dow===5) diff=-2;
+  else if(dow===6) diff=-3;
+  else if(dow===0) diff=-4;
+  else if(dow===1) diff=-5;
+  else diff=-6;
+  const wed=new Date(d);
+  wed.setDate(d.getDate()+diff);
+  return wed.getTime();
+}
+
+function onSprintChange(val){
+  const picker=document.getElementById('w-date-picker');
+  picker.removeAttribute('min');
+  picker.removeAttribute('max');
+  document.getElementById('w-date').value='';
+  document.getElementById('w-date-preview').textContent='-';
+  document.getElementById('w-date-preview').style.color='var(--text-sub)';
+  picker.value='';
+
+  if(!val) return;
+  const spNum=parseInt(val);
+
+  const BASE_WED=new Date(2026,3,1).getTime();
+  const WED_MS=7*24*60*60*1000;
+  const DAY_MS=24*60*60*1000;
+
+  function getSnFromDate(dateStr){
+    const wedTs=getSprintWednesdayTs(dateStr);
+    if(wedTs===null) return null;
+    return 37+Math.round((wedTs-BASE_WED)/WED_MS);
+  }
+
+  function getWedTsFromSn(sn){ return BASE_WED+(sn-37)*WED_MS; }
+
+  // 해당 스프린트에 이미 있는 배포 일정 날짜들
+  const existingDates=rows.filter(r=>{
+    const sn=r._sprintNum||getSnFromDate(r.date);
+    return sn===spNum;
+  }).map(r=>r.date);
+
+  // 기존 배포 일정이 있으면: 해당 스프린트의 수요일~화요일 범위로 제한
+  if(existingDates.length>0){
+    const spRow=sprintRows.find(s=>s.sprintNum===spNum);
+    if(spRow?.startDate&&spRow?.endDate){
+      picker.min=spRow.startDate;
+      picker.max=spRow.endDate;
+      picker.value=spRow.endDate;
+      onDateChange(spRow.endDate);
+    } else {
+      const wedTs=getSprintWednesdayTs(existingDates[0]);
+      if(wedTs!==null){
+        const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const endDate=fmt(new Date(wedTs+6*DAY_MS));
+        picker.min=fmt(new Date(wedTs));
+        picker.max=endDate;
+        picker.value=endDate;
+        onDateChange(endDate);
+      }
+    }
+    return;
+  }
+
+  // 기존 배포 일정이 없으면: sprintRows의 startDate/endDate로 제한
+  const spRow=sprintRows.find(s=>s.sprintNum===spNum);
+  if(spRow?.startDate&&spRow?.endDate){
+    picker.min=spRow.startDate;
+    picker.max=spRow.endDate;
+    // 종료일(화요일)을 기본값으로 설정
+    picker.value=spRow.endDate;
+    onDateChange(spRow.endDate);
+    return;
+  }
+
+  // 그 외: 상단/하단 스프린트 기준으로 범위 계산
+  // 현재 존재하는 모든 스프린트 번호 수집
+  const existingSnSet=new Set();
+  sprintRows.forEach(s=>existingSnSet.add(s.sprintNum));
+  rows.forEach(r=>{
+    const sn=r._sprintNum||getSnFromDate(r.date);
+    if(sn) existingSnSet.add(sn);
+  });
+
+  const sortedSns=[...existingSnSet].sort((a,b)=>a-b);
+  const prevSn=sortedSns.filter(s=>s<spNum).pop();
+  const nextSn=sortedSns.find(s=>s>spNum);
+
+  const fmt=ts=>{
+    const d=new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+
+  // 상단 스프린트의 마지막 날(화요일) + 1일 = minDate
+  // 하단 스프린트의 첫 날(수요일) - 1일 = maxDate
+  if(prevSn) picker.min=fmt(getWedTsFromSn(prevSn)+6*DAY_MS+DAY_MS); // 상단 화요일 다음날
+  if(nextSn) picker.max=fmt(getWedTsFromSn(nextSn)-DAY_MS);           // 하단 수요일 전날
+}
+
+// 주간 일정 전용 데이터 (워킹데이 + 스프린트 번호)
+const sprintRows=[];
+
+function syncSpTeam(){
+  const vals=['sp-wd-be','sp-wd-fe','sp-wd-des','sp-wd-mkt']
+    .map(id=>parseInt(document.getElementById(id)?.value||'0'));
+  const max=Math.max(...vals);
+  document.getElementById('sp-wd-team').value=max;
+  document.getElementById('sp-wd-team-display').textContent=max;
+}
+
+function onSprintNumInput(val){
+  // 시작일 필드 제거됨 — 스프린트 번호만으로 위치 결정
+}
+
+function onSprintDateChange(val){
+  // 시작일 필드 제거됨
+}
+
+// 스프린트 번호 입력 시 (기간은 자동 계산 안 함)
+function onSprintNumChange(val){
+  // 번호만 검증 - 기간은 별도 picker로 선택
+}
+
+function onSprintStartChange(val){
+  if(!val) return;
+  const start=new Date(val);
+
+  // 기존 스프린트 기간과 겹침 체크
+  const editingSn=parseInt(document.getElementById('sp-num').value)||null;
+  const overlap=sprintRows.find(s=>{
+    if(editingSn&&s.sprintNum===editingSn) return false;
+    if(!s.startDate||!s.endDate) return false;
+    const sStart=new Date(s.startDate);
+    const sEnd=new Date(s.endDate);
+    return start>=sStart&&start<=sEnd;
+  });
+
+  if(overlap){
+    const msg=document.getElementById('sp-num-msg');
+    msg.textContent=`스프린트 ${overlap.sprintNum}의 기간과 겹칩니다 (${overlap.startDate} ~ ${overlap.endDate})`;
+    msg.style.display='block';
+    document.getElementById('sp-start-picker').value='';
+    document.getElementById('sp-end-picker').value='';
+    document.getElementById('sp-end-display').textContent='자동 계산';
+    document.getElementById('sp-end-display').style.color='var(--text-sub)';
+    document.getElementById('sp-wd-grid').innerHTML='<div style="font-size:11px;color:var(--text-muted)">기간을 선택하면 날짜가 표시됩니다</div>';
+    return;
+  }
+  document.getElementById('sp-num-msg').style.display='none';
+
+  const dow=start.getDay();
+  let daysToTue=dow===2?7:(dow<2?(2-dow):(9-dow));
+  const end=new Date(start);
+  end.setDate(start.getDate()+daysToTue);
+  const endStr=`${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}-${String(end.getDate()).padStart(2,'0')}`;
+  document.getElementById('sp-end-picker').value=endStr;
+  const endDisp=`${end.getFullYear()}. ${String(end.getMonth()+1).padStart(2,'0')}. ${String(end.getDate()).padStart(2,'0')}.`;
+  document.getElementById('sp-end-display').textContent=endDisp;
+  document.getElementById('sp-end-display').style.color='var(--text)';
+  onSprintPeriodChange();
+}
+
+// 스프린트 기간 선택 시 워킹데이 체크박스 생성
+function onSprintPeriodChange(){
+  const startVal=document.getElementById('sp-start-picker').value;
+  const endVal=document.getElementById('sp-end-picker').value;
+  const periodEl=document.getElementById('sp-period');
+  const gridEl=document.getElementById('sp-wd-grid');
+
+  if(!startVal||!endVal){
+    periodEl.textContent='시작일과 종료일을 선택해주세요';
+    gridEl.innerHTML='<div style="font-size:11px;color:var(--text-muted)">기간을 선택하면 날짜가 표시됩니다</div>';
+    return;
+  }
+
+  const startD=new Date(startVal);
+  const endD=new Date(endVal);
+  if(startD>endD){
+    periodEl.textContent='종료일이 시작일보다 빠를 수 없습니다';
+    periodEl.style.color='#D94040';
+    return;
+  }
+  periodEl.textContent='';
+  periodEl.style.color='var(--text-sub)';
+
+  const days_ko=['일','월','화','수','목','금','토'];
+
+  // 기간 내 평일 날짜 목록
+  const weekDates=[];
+  const cur=new Date(startD);
+  while(cur<=endD){
+    const dow=cur.getDay();
+    if(dow!==0&&dow!==6){
+      weekDates.push(`${cur.getMonth()+1}/${cur.getDate()} (${days_ko[dow]})`);
+    }
+    cur.setDate(cur.getDate()+1);
+  }
+
+  if(weekDates.length===0){
+    gridEl.innerHTML='<div style="font-size:11px;color:var(--text-muted)">선택한 기간에 평일이 없습니다</div>';
+    return;
+  }
+
+  // 파트별 체크박스 생성
+  const parts=[
+    {id:'sp-wd-be', label:'BE', bg:'var(--be-bg)', color:'var(--be-t)'},
+    {id:'sp-wd-fe', label:'FE', bg:'var(--fe-bg)', color:'var(--fe-t)'},
+    {id:'sp-wd-des', label:'Des', bg:'var(--des-bg)', color:'var(--des-t)'},
+    {id:'sp-wd-mkt', label:'MKT', bg:'var(--mkt-bg)', color:'var(--mkt-t)'},
+  ];
+
+  gridEl.innerHTML=parts.map(p=>`
+    <div style="background:${p.bg};border-radius:var(--radius-sm);padding:8px 10px">
+      <div style="font-size:11px;font-weight:600;color:${p.color};margin-bottom:6px">${p.label}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${weekDates.map(d=>`
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;color:${p.color};cursor:pointer;padding:3px 6px;border-radius:3px;border:1px solid ${p.color}30;background:rgba(255,255,255,0.3)">
+            <input type="checkbox" data-part="${p.id}" value="${d}" checked onchange="recalcSprintWd()" style="cursor:pointer"/>
+            ${d}
+          </label>
+        `).join('')}
+      </div>
+      <div style="font-size:11px;margin-top:5px;color:${p.color}">
+        합계: <span id="${p.id}-count" style="font-weight:700">${weekDates.length}일</span>
+      </div>
+    </div>
+  `).join('');
+
+  // hidden input 생성/업데이트
+  parts.forEach(p=>{
+    let inp=document.getElementById(p.id);
+    if(!inp){
+      inp=document.createElement('input');
+      inp.type='hidden'; inp.id=p.id;
+      document.getElementById('sprintModal').appendChild(inp);
+    }
+    inp.value=weekDates.length;
+  });
+
+  recalcSprintWd();
+}
+
+function recalcSprintWd(){
+  const parts=[
+    {id:'sp-wd-be', label:'BE'},
+    {id:'sp-wd-fe', label:'FE'},
+    {id:'sp-wd-des', label:'Des'},
+    {id:'sp-wd-mkt', label:'MKT'},
+  ];
+  let maxDays=0;
+  parts.forEach(p=>{
+    const count=[...document.querySelectorAll(`input[data-part="${p.id}"]:checked`)].length;
+    const countEl=document.getElementById(`${p.id}-count`);
+    if(countEl) countEl.textContent=count+'일';
+    // hidden input 업데이트
+    let inp=document.getElementById(p.id);
+    if(!inp){
+      inp=document.createElement('input');
+      inp.type='hidden'; inp.id=p.id;
+      document.body.appendChild(inp);
+    }
+    inp.value=count;
+    if(count>maxDays) maxDays=count;
+  });
+  document.getElementById('sp-wd-team').value=maxDays;
+  document.getElementById('sp-wd-team-display').textContent=maxDays+'일';
+}
+
+function openSprintModal(){
+  document.getElementById('sp-num').value='';
+  document.getElementById('sp-num-msg').style.display='none';
+  document.getElementById('sp-start-picker').value='';
+  document.getElementById('sp-start-picker').style.borderColor='';
+  document.getElementById('sp-end-picker').value='';
+  document.getElementById('sp-end-display').textContent='자동 계산';
+  document.getElementById('sp-end-display').style.color='var(--text-sub)';
+  document.getElementById('sp-period').textContent='시작일과 종료일을 선택해주세요';
+  document.getElementById('sp-period').style.color='var(--text-sub)';
+  document.getElementById('sp-wd-grid').innerHTML='<div style="font-size:11px;color:var(--text-muted)">기간을 선택하면 날짜가 표시됩니다</div>';
+  document.getElementById('sp-wd-team').value='5';
+  document.getElementById('sp-wd-team-display').textContent='5일';
+  document.getElementById('sprintModal').classList.add('open');
+  setTimeout(()=>document.getElementById('sp-num').focus(),100);
+}
+
+function closeSprintModal(){
+  document.getElementById('sprintModal').classList.remove('open');
+}
+
+function submitSprintRow(){
+  const numEl=document.getElementById('sp-num');
+  const spNum=parseInt(numEl.value);
+  const msg=document.getElementById('sp-num-msg');
+
+  if(!spNum||spNum<1){
+    msg.textContent='스프린트 번호를 입력해주세요.';
+    msg.style.display='block';
+    numEl.focus();
+    return;
+  }
+
+  // 이미 존재하는 스프린트 번호 체크
+  const existInSprint=sprintRows.some(s=>s.sprintNum===spNum);
+  if(existInSprint){
+    msg.textContent='이미 존재하는 스프린트 번호입니다.';
+    msg.style.display='block';
+    numEl.focus();
+    return;
+  }
+  msg.style.display='none';
+
+  // 기간 필수 체크
+  const startDate=document.getElementById('sp-start-picker').value;
+  const endDate=document.getElementById('sp-end-picker').value;
+  if(!startDate){
+    document.getElementById('sp-start-picker').style.borderColor='#D94040';
+    showToast('스프린트 기간 시작일을 선택해주세요');
+    return;
+  }
+  document.getElementById('sp-start-picker').style.borderColor='';
+
+  const gw=id=>{
+    const el=document.getElementById(id);
+    return el?el.value.trim():'0';
+  };
+  const wd_team=gw('sp-wd-team')+'일';
+  const wd_be=gw('sp-wd-be')+'일';
+  const wd_fe=gw('sp-wd-fe')+'일';
+  const wd_des=gw('sp-wd-des')+'일';
+  const wd_mkt=gw('sp-wd-mkt')+'일';
+
+  // 체크된 날짜 저장
+  const parts=['sp-wd-be','sp-wd-fe','sp-wd-des','sp-wd-mkt'];
+  const checkedDates={};
+  parts.forEach(partId=>{
+    checkedDates[partId]=[...document.querySelectorAll(`input[data-part="${partId}"]:checked`)].map(cb=>cb.value);
+  });
+
+  sprintRows.push({
+    sprintNum:spNum,
+    startDate:document.getElementById('sp-start-picker').value,
+    endDate:document.getElementById('sp-end-picker').value,
+    wd_team, wd_be, wd_fe, wd_des, wd_mkt,
+    checkedDates,
+    _isSprint:true,
+  });
+
+  closeSprintModal();
+  render();
+  showToast(`스프린트 ${spNum} 주간 일정이 추가되었습니다`);dbSave();
+}
+
+function syncWdTeam(){
+  const vals=['w-wd-be','w-wd-fe','w-wd-des','w-wd-mkt']
+    .map(id=>parseInt(document.getElementById(id)?.value||'0'));
+  const max=Math.max(...vals);
+  document.getElementById('w-wd-team').value=max;
+  document.getElementById('w-wd-team-display').textContent=max;
+}
+
+function toggleQ(qi){
+  kpiData[qi].open=!kpiData[qi].open;
+  renderKPI();dbSave();
+}
+
+function startEditKPI(qi,ii,e){
+  e.stopPropagation();
+  const item=kpiData[qi].items[ii];
+  const el=document.getElementById(`kpi-item-${qi}-${ii}`);
+  el.outerHTML=`
+    <div class="kpi-edit-row" id="kpi-edit-${qi}-${ii}">
+      <input id="ke-lbl-${qi}-${ii}" type="text" placeholder="항목명" value="${item.label}"/>
+      <input id="ke-note-${qi}-${ii}" type="text" placeholder="보조 설명 (선택)" value="${item.note}"/>
+      <input id="ke-val-${qi}-${ii}" type="text" placeholder="값" value="${item.value}"/>
+      <div class="kpi-edit-btns">
+        <button onclick="cancelEditKPI(${qi})">취소</button>
+        <button class="save" onclick="saveEditKPI(${qi},${ii})">저장</button>
+      </div>
+    </div>`;
+}
+
+function saveEditKPI(qi,ii){
+  const lbl=document.getElementById(`ke-lbl-${qi}-${ii}`).value.trim();
+  const note=document.getElementById(`ke-note-${qi}-${ii}`).value.trim();
+  const val=document.getElementById(`ke-val-${qi}-${ii}`).value.trim();
+  if(!lbl||!val) return;
+  kpiData[qi].items[ii]={label:lbl,note,value:val};
+  renderKPI();
+}
+
+function cancelEditKPI(qi){
+  renderKPI();
+}
+
+function deleteKPI(qi,ii){
+  if(!confirm(`"${kpiData[qi].items[ii].label}" 항목을 삭제할까요?`)) return;
+  kpiData[qi].items.splice(ii,1);
+  renderKPI();
+}
+
+function startAddKPI(qi,e){
+  e.stopPropagation();
+  const body=e.target.parentElement;
+  const addBtn=e.target;
+  const div=document.createElement('div');
+  div.className='kpi-edit-row';
+  div.id=`kpi-add-${qi}`;
+  div.innerHTML=`
+    <input id="ka-lbl-${qi}" type="text" placeholder="항목명"/>
+    <input id="ka-note-${qi}" type="text" placeholder="보조 설명 (선택)"/>
+    <input id="ka-val-${qi}" type="text" placeholder="값"/>
+    <div class="kpi-edit-btns">
+      <button onclick="cancelEditKPI(${qi})">취소</button>
+      <button class="save" onclick="saveAddKPI(${qi})">추가</button>
+    </div>`;
+  body.insertBefore(div,addBtn);
+  document.getElementById(`ka-lbl-${qi}`).focus();
+}
+
+function saveAddKPI(qi){
+  const lbl=document.getElementById(`ka-lbl-${qi}`).value.trim();
+  const note=document.getElementById(`ka-note-${qi}`).value.trim();
+  const val=document.getElementById(`ka-val-${qi}`).value.trim();
+  if(!lbl||!val){alert('항목명과 값을 입력해주세요.');return;}
+  kpiData[qi].items.push({label:lbl,note,value:val});
+  renderKPI();
+}
+
+function toggleQ_old(header){}
+
+let wdExpanded=false;
+function toggleWd(){
+  wdExpanded=!wdExpanded;
+  const table=document.getElementById('mainTable');
+  const groupTh=document.getElementById('wdGroupTh');
+  table.classList.toggle('wd-expanded', wdExpanded);
+  groupTh.setAttribute('colspan', wdExpanded?'5':'1');
+  setTimeout(drawTimelines,60);
+}
+
+function updateStatus(date, product, value){
+  rows.filter(r=>r.date===date&&r.product===product).forEach(r=>r.status=value);
+  // 카운트만 갱신 (테이블 재렌더 없이)
+  const filter=document.getElementById('filterSel').value;
+  const menuFilter=document.getElementById('filterMenu').value;
+  const filtered=rows.filter(r=>(!filter||r.product===filter)&&(!menuFilter||r.menu.includes(menuFilter)));
+  const doneGroups=new Set(filtered.filter(r=>r.status==='완료').map(r=>r.date+'|'+r.product));
+  const sitiEl=document.getElementById('sitiCount');
+  const adminEl=document.getElementById('adminCount');
+  if(sitiEl) sitiEl.textContent=[...doneGroups].filter(k=>k.endsWith('|Siti')).length+'건';
+  if(adminEl) adminEl.textContent=[...doneGroups].filter(k=>k.endsWith('|Admin')).length+'건';
+  dbSave();
+}
+
+function editSprint(sn){
+  const sp=sprintRows.find(s=>s.sprintNum===sn);
+  openSprintModal();
+  document.getElementById('sp-num').value=sn;
+
+  if(sp){
+    // 기간 복원
+    if(sp.startDate) document.getElementById('sp-start-picker').value=sp.startDate;
+    if(sp.endDate){
+      document.getElementById('sp-end-picker').value=sp.endDate;
+      const d=new Date(sp.endDate);
+      const days_ko=['일','월','화','수','목','금','토'];
+      const endDisp=document.getElementById('sp-end-display');
+      if(endDisp){
+        endDisp.textContent=`${d.getFullYear()}. ${String(d.getMonth()+1).padStart(2,'0')}. ${String(d.getDate()).padStart(2,'0')}.`;
+        endDisp.style.color='var(--text)';
+      }
+    }
+
+    // 기간이 있으면 체크박스 먼저 생성
+    if(sp.startDate&&sp.endDate){
+      onSprintPeriodChange();
+
+      // 체크박스 복원 (저장된 체크 날짜 기반)
+      if(sp.checkedDates){
+        const parts=['sp-wd-be','sp-wd-fe','sp-wd-des','sp-wd-mkt'];
+        parts.forEach(partId=>{
+          const checked=sp.checkedDates[partId]||[];
+          document.querySelectorAll(`input[data-part="${partId}"]`).forEach(cb=>{
+            cb.checked=checked.includes(cb.value);
+          });
+        });
+        recalcSprintWd();
+      }
+    }
+  }
+
+  const originalSn=sn;
+  const saveBtn=document.querySelector('#sprintModal .btn-primary');
+  saveBtn.textContent='저장하기';
+  saveBtn.onclick=function(){
+    const newSn=parseInt(document.getElementById('sp-num').value);
+    const msg=document.getElementById('sp-num-msg');
+    if(!newSn||newSn<1){
+      msg.textContent='스프린트 번호를 입력해주세요.';
+      msg.style.display='block';
+      return;
+    }
+    if(newSn!==originalSn){
+      const existInSprint=sprintRows.some(s=>s.sprintNum===newSn);
+      if(existInSprint){
+        msg.textContent='이미 존재하는 스프린트 번호입니다.';
+        msg.style.display='block';
+        return;
+      }
+    }
+    msg.style.display='none';
+    const gw=id=>(document.getElementById(id)?.value||'').trim();
+
+    // 체크된 날짜 저장
+    const parts=['sp-wd-be','sp-wd-fe','sp-wd-des','sp-wd-mkt'];
+    const checkedDates={};
+    parts.forEach(partId=>{
+      checkedDates[partId]=[...document.querySelectorAll(`input[data-part="${partId}"]:checked`)].map(cb=>cb.value);
+    });
+
+    const data={
+      sprintNum:newSn,
+      startDate:document.getElementById('sp-start-picker').value,
+      endDate:document.getElementById('sp-end-picker').value,
+      wd_team:gw('sp-wd-team')+'일',
+      wd_be:gw('sp-wd-be')+'일',
+      wd_fe:gw('sp-wd-fe')+'일',
+      wd_des:gw('sp-wd-des')+'일',
+      wd_mkt:gw('sp-wd-mkt')+'일',
+      checkedDates,
+      _isSprint:true,
+    };
+    if(sp){
+      if(newSn!==originalSn) rows.filter(r=>r._sprintNum===originalSn).forEach(r=>r._sprintNum=newSn);
+      Object.assign(sp, data);
+    } else {
+      sprintRows.push(data);
+    }
+    saveBtn.textContent='추가하기';
+    saveBtn.onclick=submitSprintRow;
+    closeSprintModal();
+    render();
+    showToast(`스프린트 ${newSn} 일정이 수정되었습니다`);dbSave();
+  };
+}
+
+let sprintDeleteNum=-1;
+function confirmDeleteSprint(sn){
+  sprintDeleteNum=sn;
+  document.getElementById('sprintDeleteTarget').textContent=`스프린트 ${sn}`;
+  document.getElementById('sprintDeleteModal').classList.add('open');
+}
+function closeSprintDeleteModal(){
+  document.getElementById('sprintDeleteModal').classList.remove('open');
+  sprintDeleteNum=-1;
+}
+function executeSprintDelete(){
+  if(sprintDeleteNum<0) return;
+  const idx=sprintRows.findIndex(s=>s.sprintNum===sprintDeleteNum);
+  if(idx>=0) sprintRows.splice(idx,1);
+  closeSprintDeleteModal();
+  render();
+  showToast(`스프린트 ${sprintDeleteNum} 일정이 삭제되었습니다`);dbSave();
+}
+
+// ── JSON 내보내기 / 불러오기 ───────────────────────────
+function exportJSON(){
+  const data={
+    rows,
+    sprintRows,
+    timelines,
+    kpiData,
+    exportedAt:new Date().toISOString(),
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`siti-schedule-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('JSON 파일로 내보냈습니다');
+}
+
+function importJSON(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(data.rows) { rows.length=0; rows.push(...data.rows); }
+      if(data.sprintRows){ sprintRows.length=0; sprintRows.push(...data.sprintRows); }
+      if(data.timelines){ timelines.length=0; timelines.push(...data.timelines); }
+      if(data.kpiData){ kpiData.length=0; kpiData.push(...data.kpiData); }
+      render();
+      renderKPI();
+      setTimeout(drawTimelines,80);
+      showToast('데이터를 불러왔습니다');
+    } catch(err){
+      alert('JSON 파일을 읽는 중 오류가 발생했습니다.\n'+err.message);
+    }
+    e.target.value=''; // 같은 파일 재선택 가능하도록 초기화
+  };
+  reader.readAsText(file);
+}
+
+// 필드 에러 메시지 표시/제거
+function setFieldError(fieldId, msg){
+  const errId=fieldId+'-err';
+  let errEl=document.getElementById(errId);
+  if(!errEl){
+    errEl=document.createElement('div');
+    errEl.id=errId;
+    errEl.style.cssText='font-size:11px;color:#D94040;margin-top:3px';
+    const field=document.getElementById(fieldId);
+    if(field) field.parentNode.appendChild(errEl);
+  }
+  errEl.textContent=msg;
+  errEl.style.display=msg?'block':'none';
+  if(msg){
+    const field=document.getElementById(fieldId);
+    if(field) field.style.borderColor='#D94040';
+  }
+}
+function clearFieldError(fieldId){
+  setFieldError(fieldId,'');
+  const field=document.getElementById(fieldId);
+  if(field) field.style.borderColor='';
+}
+function clearAllErrors(modal){
+  modal.querySelectorAll('[id$="-err"]').forEach(el=>el.style.display='none');
+  modal.querySelectorAll('input,select').forEach(el=>el.style.borderColor='');
+}
+
+let kpiOpen=false;
+function toggleKPI(){
+  kpiOpen=!kpiOpen;
+  document.getElementById('kpiPanel').classList.toggle('open',kpiOpen);
+  const btn=document.getElementById('kpiBtn');
+  if(kpiOpen){
+    btn.style.background='var(--accent-soft)';
+    btn.style.color='var(--accent)';
+    btn.style.borderColor='var(--accent)';
+  } else {
+    btn.style.background='var(--surface)';
+    btn.style.color='var(--text-sub)';
+    btn.style.borderColor='var(--border-md)';
+  }
+}
+
+function tc(txt, bg, extra='', data=''){
+  const t=(txt||'').replace(/\n/g,'<br>');
+  return `<td class="task-cell" style="background:${bg};${extra}" ${data}>${t}</td>`;
+}
+
+function render(){
+  const filter=document.getElementById('filterSel').value;
+  const menuFilter=document.getElementById('filterMenu').value;
+  const filtered=rows.filter(r=>
+    (r._sprintNum || ((!filter||r.product===filter)&&(!menuFilter||r.menu.includes(menuFilter))))
+  );
+
+  filtered.sort((a,b)=>{
+    const parse=s=>{const m=s.match(/(\d+)\/(\d+)/);return m?parseInt(m[1])*100+parseInt(m[2]):0;};
+    const dc=parse(a.date)-parse(b.date);
+    if(dc!==0) return dc;
+    return a.product.localeCompare(b.product);
+  });
+
+  // 배포일 rowspan 계산
+  const dateCount={};
+  filtered.forEach(r=>{dateCount[r.date]=(dateCount[r.date]||0)+1;});
+
+  // 같은 date+product+name 묶음에서 첫 번째 행만 wd/product/액션 셀 출력 (rowspan)
+  const groupCount={};
+  filtered.forEach(r=>{
+    const k=r._groupKey||(r.date+'|'+r.product+'|'+r.name);
+    groupCount[k]=(groupCount[k]||0)+1;
+  });
+
+  // 스프린트 계산: 수요일~다음주 화요일 = 1스프린트
+  // 각 날짜가 속한 스프린트 시작 수요일을 구함
+  const SPRINT_START=37;
+  const SPRINT_BASE_DATE=new Date(2026,3,1); // 기준: 2026/4/1 (수요일 기준 맞춤용)
+
+  function getSprintWednesday(dateStr){
+    const m=dateStr.match(/(\d+)\/(\d+)/);
+    if(!m) return null;
+    const d=new Date(2026,parseInt(m[1])-1,parseInt(m[2]));
+    const dow=d.getDay(); // 0=일,1=월,...,3=수,2=화
+    // 화요일(2)이면 이번주 수요일은 8일 전(지난주 수요일)
+    // 수요일(3)이면 오늘이 스프린트 시작
+    // 그 외: 가장 최근 지난 수요일
+    let diff;
+    if(dow===3) diff=0;        // 수요일
+    else if(dow===4) diff=-1;  // 목요일
+    else if(dow===5) diff=-2;  // 금요일
+    else if(dow===6) diff=-3;  // 토요일
+    else if(dow===0) diff=-4;  // 일요일
+    else if(dow===1) diff=-5;  // 월요일
+    else diff=-6;              // 화요일 → 지난주 수요일
+    const wed=new Date(d);
+    wed.setDate(d.getDate()+diff);
+    return wed.getTime();
+  }
+
+  // 기준 수요일을 2026-04-01로 고정 (스프린트 37 시작점)
+  const firstWed=new Date(2026,3,1).getTime(); // 2026-04-01 수요일
+  const WED_MS=7*24*60*60*1000;
+
+  function getSprintNum(dateStr){
+    const wed=getSprintWednesday(dateStr);
+    if(wed===null) return SPRINT_START;
+    const diff=Math.round((wed-firstWed)/WED_MS);
+    return SPRINT_START+diff;
+  }
+
+  const sprintMap={};
+  [...new Set(filtered.map(r=>r.date))].forEach(d=>sprintMap[d]=getSprintNum(d));
+  // _sprintNum이 있는 row의 날짜는 해당 sprintNum으로 직접 매핑
+  filtered.forEach(r=>{if(r._sprintNum) sprintMap[r.date]=r._sprintNum;});
+
+  // allRows: filtered + 배포 일정 없는 sprintRows 추가
+  const usedSprintNums=new Set([
+    ...filtered.map(r=>r._sprintNum||sprintMap[r.date]),
+    ...filtered.map(r=>sprintMap[r.date]), // 날짜 기반 스프린트도 포함
+  ]);
+  // sprintRows 중 배포 일정과 연결된 것은 orphan에서 제외
+  const orphanSprints=sprintRows.filter(s=>!usedSprintNums.has(s.sprintNum)&&!usedSprintNums.has(String(s.sprintNum)));
+  const allRows=[...filtered, ...orphanSprints];
+
+  // 스프린트 번호 기준 오름차순 정렬
+  // rows는 날짜 기반 스프린트, sprintRows는 sprintNum 직접 보유
+  allRows.sort((a,b)=>{
+    const getSn=r=>{
+      if(r._isSprint) return r.sprintNum;
+      if(r._sprintNum) return r._sprintNum;
+      return sprintMap[r.date]||999;
+    };
+    const snDiff=getSn(a)-getSn(b);
+    if(snDiff!==0) return snDiff;
+    // 같은 스프린트: _isSprint가 맨 앞
+    if(a._isSprint) return -1;
+    if(b._isSprint) return 1;
+    // 같은 스프린트 내 날짜 오름차순
+    const parse=s=>{const m=s.match(/(\d+)\/(\d+)/);return m?parseInt(m[1])*100+parseInt(m[2]):0;};
+    const dc=parse(a.date)-parse(b.date);
+    if(dc!==0) return dc;
+    return (a.product||'').localeCompare(b.product||'');
+    return (a.product||'').localeCompare(b.product||'');
+  });
+
+  // 스프린트별 rowspan 계산 — _isSprint 행 제외 (렌더링 안 하므로)
+  const sprintCountAll={};
+  const sprintRendered={};
+  allRows.forEach(r=>{
+    if(r._isSprint) return; // 렌더링 안 하므로 제외
+    const sn=r._sprintNum||sprintMap[r.date];
+    if(sn) sprintCountAll[sn]=(sprintCountAll[sn]||0)+1;
+  });
+
+  const dateRendered={};
+  const groupRendered={};
+  let lastMonth=-1;
+  const tbody=document.getElementById('tbody');
+  let html='';
+
+  allRows.forEach((r,i)=>{
+    const alt=i%2===1;
+    const bg=alt?'rgba(0,0,0,0.014)':'transparent';
+
+    // 스프린트 전용 행 렌더링
+    if(r._isSprint){
+      // 배포 일정 없는 스프린트 전용 행
+      const sn=r.sprintNum;
+      html+=`<tr>`;
+      html+=`<td style="background:var(--surface)"></td>`;
+      html+=`<td class="wd-cell" style="background:var(--wd-bg);color:var(--wd-t)">${r.wd_team}</td>`;
+      html+=`<td class="wd-cell wd-expand" style="background:var(--be-bg);color:var(--be-t)">${r.wd_be}</td>`;
+      html+=`<td class="wd-cell wd-expand" style="background:var(--fe-bg);color:var(--fe-t)">${r.wd_fe}</td>`;
+      html+=`<td class="wd-cell wd-expand" style="background:var(--des-bg);color:var(--des-t)">${r.wd_des}</td>`;
+      html+=`<td class="wd-cell wd-expand" style="background:var(--mkt-bg);color:var(--mkt-t)">${r.wd_mkt}</td>`;
+      html+=`<td class="td-date sprint-cell" style="text-align:center;font-size:11px;font-weight:500;color:var(--text-sub)"><span class="sprint-label">스프린트 ${sn}</span><div class="sprint-actions"><button class="sprint-act-btn edit" onclick="editSprint(${sn})" title="수정">${SVG_PEN}</button><button class="sprint-act-btn del" onclick="confirmDeleteSprint(${sn})" title="삭제">${SVG_TRASH}</button></div></td>`;
+      // 나머지 빈 셀 15개
+      html+=`<td style="background:#F5F5F3"></td>`;
+      html+=`<td style="background:var(--surface)"></td>`;
+      html+=`<td style="background:var(--surface)"></td>`;
+      html+=`<td style="background:var(--surface)"></td>`;
+      html+=`<td style="background:var(--surface)"></td>`;
+      html+=`<td style="background:var(--surface)"></td>`;
+      html+=`<td style="background:var(--surface)"></td>`;
+      html+=`<td style="background:var(--be-bg)"></td>`;
+      html+=`<td style="background:var(--be-bg)"></td>`;
+      html+=`<td style="background:var(--be-bg)"></td>`;
+      html+=`<td style="background:var(--fe-bg)"></td>`;
+      html+=`<td style="background:var(--fe-bg)"></td>`;
+      html+=`<td style="background:var(--fe-bg)"></td>`;
+      html+=`<td style="background:var(--des-bg)"></td>`;
+      html+=`<td style="background:var(--des-bg)"></td>`;
+      html+=`<td style="background:var(--des-bg)"></td>`;
+      html+=`<td style="background:var(--mkt-bg)"></td>`;
+      html+=`<td style="background:var(--mkt-bg)"></td>`;
+      html+=`</tr>`;
+      return;
+    }
+    const ri=rows.indexOf(r);
+    const gk=r._groupKey||(r.date+'|'+r.product+'|'+r.name);
+    const isFirstInGroup=!groupRendered[gk];
+    const isFirstInDate=!dateRendered[r.date];
+    const gspan=groupCount[gk];
+    const dspan=dateCount[r.date];
+
+    const curMonth=parseInt((r.date.match(/^(\d+)\//)||[])[1]||-1);
+    const monthBorder=(!groupRendered[gk]&&curMonth!==lastMonth&&lastMonth!==-1);
+    if(isFirstInGroup) lastMonth=curMonth;
+    const sn=r._sprintNum||sprintMap[r.date];
+    const isFirstInSprint=!sprintRendered[sn];
+
+    html+=`<tr class="${monthBorder?'month-sep':''}">`;
+
+    // 액션 버튼 — 같은 _groupKey면 rowspan 병합, 다른 그룹이면 분리
+    if(isFirstInGroup){
+      html+=`<td rowspan="${gspan}" style="text-align:center;padding:4px 6px;background:var(--surface);white-space:nowrap;vertical-align:middle">
+        <div style="display:flex;flex-direction:row;gap:4px;align-items:center;justify-content:center">
+          <button class="icon-btn edit" onclick="editRow(${ri})" title="수정">${SVG_PEN}</button>
+          <button class="icon-btn del" onclick="confirmDelete(${ri})" title="삭제">${SVG_TRASH}</button>
+        </div>
+      </td>`;
+      groupRendered[gk]=true;
+    }
+
+    // 워킹데이 & 스프린트: 스프린트 첫 배포 일정 행에서만 렌더링
+    if(isFirstInSprint){
+      const sc=sprintCountAll[sn]||1;
+      const spData=sprintRows.find(x=>x.sprintNum===sn);
+      const wt=spData?.wd_team||r.wd_team||'';
+      const wb=spData?.wd_be||r.wd_be||'';
+      const wf=spData?.wd_fe||r.wd_fe||'';
+      const wd=spData?.wd_des||r.wd_des||'';
+      const wm=spData?.wd_mkt||r.wd_mkt||'';
+      html+=`<td rowspan="${sc}" class="wd-cell" style="background:var(--wd-bg);color:var(--wd-t);vertical-align:middle">${wt}</td>`;
+      html+=`<td rowspan="${sc}" class="wd-cell wd-expand" style="background:var(--be-bg);color:var(--be-t);vertical-align:middle">${wb}</td>`;
+      html+=`<td rowspan="${sc}" class="wd-cell wd-expand" style="background:var(--fe-bg);color:var(--fe-t);vertical-align:middle">${wf}</td>`;
+      html+=`<td rowspan="${sc}" class="wd-cell wd-expand" style="background:var(--des-bg);color:var(--des-t);vertical-align:middle">${wd}</td>`;
+      html+=`<td rowspan="${sc}" class="wd-cell wd-expand" style="background:var(--mkt-bg);color:var(--mkt-t);vertical-align:middle">${wm}</td>`;
+      html+=`<td rowspan="${sc}" class="td-date sprint-cell" style="vertical-align:middle;text-align:center;font-size:11px;font-weight:500;color:var(--text-sub)"><span class="sprint-label">스프린트 ${sn}</span><div class="sprint-actions"><button class="sprint-act-btn edit" onclick="editSprint(${sn})" title="수정">${SVG_PEN}</button><button class="sprint-act-btn del" onclick="confirmDeleteSprint(${sn})" title="삭제">${SVG_TRASH}</button></div></td>`;
+      sprintRendered[sn]=true;
+    }
+
+    // 배포일 — date 첫 행만 rowspan
+    if(isFirstInDate){
+      html+=`<td class="td-date" rowspan="${dspan}" style="vertical-align:middle">${r.date}</td>`;
+      dateRendered[r.date]=true;
+    }
+
+    // 완료 셀렉트 — date+product 그룹 첫 행만 rowspan
+    if(isFirstInGroup){
+      const statusVal=r.status||'진행';
+      const statusColor=statusVal==='완료'?'var(--fe-t)':statusVal==='심사'?'var(--amber,#C97B20)':'var(--text-sub)';
+      html+=`<td rowspan="${gspan}" style="text-align:center;vertical-align:middle;padding:4px 6px;background:var(--surface)">
+        <select onchange="updateStatus('${r.date}','${r.product}',this.value)" style="font-family:var(--font);font-size:11px;font-weight:500;padding:4px 6px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--surface);color:${statusColor};cursor:pointer;outline:none;width:100%;text-align:center">
+          <option ${statusVal==='준비'?'selected':''}>준비</option>
+          <option ${statusVal==='진행'?'selected':''}>진행</option>
+          <option ${statusVal==='심사'?'selected':''}>심사</option>
+          <option ${statusVal==='완료'?'selected':''}>완료</option>
+        </select>
+      </td>`;
+    }
+
+    // 제품 — 그룹 첫 행만 rowspan
+    if(isFirstInGroup){
+      html+=`<td rowspan="${gspan}" style="text-align:center;padding:6px 8px;background:var(--surface);vertical-align:middle"><span class="chip chip-${r.product.toLowerCase()}">${r.product}</span></td>`;
+    }
+
+    // 버전, 명칭 — 그룹 첫 행만 rowspan
+    if(isFirstInGroup){
+      html+=`<td rowspan="${gspan}" class="ver" style="background:var(--surface);vertical-align:middle">${r.ver}</td>`;
+      html+=`<td rowspan="${gspan}" class="name-cell" style="background:var(--surface);vertical-align:middle">${r.name}</td>`;
+    }
+    html+=`<td class="content-cell" style="background:${bg}">${r.menu}</td>`;
+    html+=`<td class="detail-cell" style="background:${bg}">${r.detail}</td>`;
+
+    html+=tc(r.be_siti, alt?'var(--be-alt)':'var(--be-bg)', '', `data-date="${r.date}" data-team="BE" data-col="be_siti"`);
+    html+=tc(r.be_admin, alt?'var(--be-alt)':'var(--be-bg)', '', `data-date="${r.date}" data-team="BE" data-col="be_admin"`);
+    html+=tc(r.be_data, alt?'var(--be-alt)':'var(--be-bg)','text-align:center', `data-date="${r.date}" data-team="BE" data-col="be_data"`);
+    html+=tc(r.fe_siti, alt?'var(--fe-alt)':'var(--fe-bg)', '', `data-date="${r.date}" data-team="FE" data-col="fe_siti"`);
+    html+=tc(r.fe_admin, alt?'var(--fe-alt)':'var(--fe-bg)', '', `data-date="${r.date}" data-team="FE" data-col="fe_admin"`);
+    html+=tc(r.fe_event, alt?'var(--fe-alt)':'var(--fe-bg)', '', `data-date="${r.date}" data-team="FE" data-col="fe_event"`);
+    html+=tc(r.des_siti, alt?'var(--des-alt)':'var(--des-bg)', '', `data-date="${r.date}" data-team="Des" data-col="des_siti"`);
+    html+=tc(r.des_admin, alt?'var(--des-alt)':'var(--des-bg)', '', `data-date="${r.date}" data-team="Des" data-col="des_admin"`);
+    html+=tc(r.des_mkt, alt?'var(--des-alt)':'var(--des-bg)', '', `data-date="${r.date}" data-team="Des" data-col="des_mkt"`);
+    html+=tc(r.mkt_cont, alt?'var(--mkt-alt)':'var(--mkt-bg)', '', `data-date="${r.date}" data-team="MKT" data-col="mkt_cont"`);
+    html+=tc(r.mkt_evt, alt?'var(--mkt-alt)':'var(--mkt-bg)', '', `data-date="${r.date}" data-team="MKT" data-col="mkt_evt"`);
+
+    html+=`</tr>`;
+  });
+
+  tbody.innerHTML=html||`<tr><td colspan="23" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">일치하는 일정이 없습니다</td></tr>`;
+  const sitiEl=document.getElementById('sitiCount');
+  const adminEl=document.getElementById('adminCount');
+  const uniqueGroups=new Set(filtered.map(r=>r.date+'|'+r.product));
+  const doneGroups=new Set(
+    filtered.filter(r=>r.status==='완료').map(r=>r.date+'|'+r.product)
+  );
+  const sitiCount=[...doneGroups].filter(k=>k.endsWith('|Siti')).length;
+  const adminCount=[...doneGroups].filter(k=>k.endsWith('|Admin')).length;
+  if(sitiEl) sitiEl.textContent=sitiCount+'건';
+  if(adminEl) adminEl.textContent=adminCount+'건';
+  setTimeout(drawTimelines, 60);
+}
+
+function onDateChange(val){
+  if(!val) return;
+  const days=['일','월','화','수','목','금','토'];
+  const d=new Date(val+'T00:00:00');
+  const m=d.getMonth()+1;
+  const day=d.getDate();
+  const dow=days[d.getDay()];
+  const formatted=`${m}/${day} (${dow})`;
+  document.getElementById('w-date').value=formatted;
+  document.getElementById('w-date-preview').textContent=formatted;
+  document.getElementById('w-date-preview').style.color='var(--text)';
+}
+
+function todayPlaceholder(){
+  const d=new Date();
+  const days=['일','월','화','수','목','금','토'];
+  return `${d.getMonth()+1}/${d.getDate()} (${days[d.getDay()]})`;
+}
+
+const MENU_OPTS=['홈','티켓북','커뮤니티','보관함','프로필','DB'];
+
+function makePair(idx){
+  const chips=MENU_OPTS.map(m=>`
+    <label class="chip-opt" style="display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;border:1px solid var(--border-md);font-size:11px;cursor:pointer;user-select:none;transition:all .12s;background:var(--bg);color:var(--text-sub);margin:0 4px 4px 0">
+      <input type="checkbox" value="${m}" ${m==='홈'?'checked':''} style="display:none" onchange="updateChip(this)"/>
+      ${m}
+    </label>`).join('');
+  return `<div class="pair-row" data-idx="${idx}" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;background:var(--bg)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted)">메뉴</label>
+      ${idx>0?`<button class="icon-btn del" onclick="removePair(${idx})" title="삭제">${SVG_TRASH}</button>`:''}
+    </div>
+    <div class="chip-group" style="display:flex;flex-wrap:wrap;margin-bottom:10px">${chips}</div>
+    <div>
+      <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);display:block;margin-bottom:4px">상세 내용</label>
+      <textarea class="pair-detail" rows="2" placeholder="업데이트 기능 설명" style="width:100%;font-family:var(--font);font-size:12px;padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;resize:vertical"></textarea>
+    </div>
+  </div>`;
+}
+
+function updateChip(input){
+  const label=input.parentElement;
+  if(input.checked){
+    label.style.background='var(--accent)';
+    label.style.color='#fff';
+    label.style.borderColor='var(--accent)';
+  } else {
+    label.style.background='var(--bg)';
+    label.style.color='var(--text-sub)';
+    label.style.borderColor='var(--border-md)';
+  }
+}
+
+function initChips(container){
+  container.querySelectorAll('.chip-opt input[type=checkbox]').forEach(cb=>{
+    updateChip(cb);
+  });
+}
+
+let pairCount=1;
+
+function addPair(){
+  const container=document.getElementById('w-pairs');
+  const div=document.createElement('div');
+  div.innerHTML=makePair(pairCount++);
+  const el=div.firstElementChild;
+  container.appendChild(el);
+  initChips(el);
+}
+
+function removePair(idx){
+  const el=document.querySelector(`.pair-row[data-idx="${idx}"]`);
+  if(el) el.remove();
+}
+
+let deleteTargetIdx=-1;
+
+function confirmDelete(idx){
+  deleteTargetIdx=idx;
+  const r=rows[idx];
+  document.getElementById('deleteTarget').textContent=`${r.date} · ${r.product} · ${r.name}`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal(){
+  document.getElementById('deleteModal').classList.remove('open');
+  deleteTargetIdx=-1;
+}
+
+function executeDelete(){
+  if(deleteTargetIdx<0) return;
+  rows.splice(deleteTargetIdx,1);
+  closeDeleteModal();
+  render();
+  showToast('일정이 삭제되었습니다');dbSave();
+}
+
+let editTargetIdx=-1;
+
+function editRow(idx){
+  editTargetIdx=idx;
+  const r=rows[idx];
+  console.log('editRow 데이터:', JSON.stringify(r));
+
+  // 스프린트 셀렉트 채우기
+  const sprintSel=document.getElementById('w-sprint');
+  sprintSel.innerHTML='<option value="">— 선택 —</option>';
+  const allSprintNums=new Set();
+  sprintRows.forEach(s=>allSprintNums.add(s.sprintNum));
+  const allDatesArr=[...new Set(rows.map(x=>x.date))].sort((a,b)=>{
+    const pa=a.match(/(\d+)\/(\d+)/),pb=b.match(/(\d+)\/(\d+)/);
+    return (parseInt(pa[1])*100+parseInt(pa[2]))-(parseInt(pb[1])*100+parseInt(pb[2]));
+  });
+  const firstWedTs=new Date(2026,3,1).getTime();
+  const WED_MS=7*24*60*60*1000;
+  allDatesArr.forEach(d=>{
+    const wed=getSprintWednesdayTs(d);
+    if(wed!==null) allSprintNums.add(37+Math.round((wed-firstWedTs)/WED_MS));
+  });
+  [...allSprintNums].sort((a,b)=>a-b).forEach(sn=>{
+    const opt=document.createElement('option');
+    opt.value=sn; opt.textContent='스프린트 '+sn;
+    sprintSel.appendChild(opt);
+  });
+  document.getElementById('weekModal').classList.add('open');
+  document.getElementById('weekModal').querySelector('.modal-title').textContent='배포 일정 수정';
+  document.querySelector('#weekModal .btn-primary').textContent='저장하기';
+
+  // 모달 열린 후 값 설정
+  const targetSprint=r._sprintNum||r.sprint_num||'';
+  if(targetSprint){
+    const snStr=String(targetSprint);
+    if(![...sprintSel.options].some(o=>o.value===snStr)){
+      const opt=document.createElement('option');
+      opt.value=snStr; opt.textContent='스프린트 '+snStr;
+      sprintSel.appendChild(opt);
+    }
+    sprintSel.value=snStr;
+    console.log('스프린트 설정:', snStr, '→', sprintSel.value);
+  }
+
+  const dateVal=String(r.date||'');
+  document.getElementById('w-date').value=dateVal;
+  const preview=document.getElementById('w-date-preview');
+  preview.textContent=dateVal||'-';
+  preview.style.color=dateVal?'var(--text)':'var(--text-sub)';
+  console.log('배포일 설정:', dateVal);
+
+  document.getElementById('w-product').value=r.product;
+  document.getElementById('w-ver').value=(r.ver==='-'||r.ver==='—')?'':r.ver;
+  document.getElementById('w-name').value=r.name;
+
+  // _groupKey 기준으로 같은 그룹 row 찾기 (페어 전체 복원)
+  const gk=r._groupKey||(r.date+'|'+r.product+'|'+r.name);
+  const groupRows=rows.filter(x=>(x._groupKey||(x.date+'|'+x.product+'|'+x.name))===gk);
+  pairCount=groupRows.length;
+  const pairsEl=document.getElementById('w-pairs');
+  pairsEl.innerHTML='';
+  groupRows.forEach((gr,pi)=>{
+    const div=document.createElement('div');
+    div.innerHTML=makePair(pi);
+    const pairEl=div.firstElementChild;
+    pairsEl.appendChild(pairEl);
+    initChips(pairEl);
+    const menuTokens=(gr.menu||'').split(/[·\n]/).filter(Boolean);
+    pairEl.querySelectorAll('.chip-opt input').forEach(cb=>{
+      cb.checked=menuTokens.includes(cb.value);
+      updateChip(cb);
+    });
+    const detailEl=pairEl.querySelector('.pair-detail');
+    if(detailEl) detailEl.value=gr.detail||'';
+  });
+}
+
+function openWeekModal(){
+  editTargetIdx=-1;
+  document.getElementById('weekModal').querySelector('.modal-title').textContent='+ 배포 일정';
+  document.querySelector('#weekModal .btn-primary').textContent='추가하기';
+
+  // 스프린트 목록 채우기 (sprintRows + rows 기반 스프린트)
+  const sprintSel=document.getElementById('w-sprint');
+  sprintSel.innerHTML='<option value="">— 선택 —</option>';
+  const allSprintNums=new Set();
+  sprintRows.forEach(s=>allSprintNums.add(s.sprintNum));
+  // render 함수 없이 sprintMap 재계산
+  const allDatesArr=[...new Set(rows.map(r=>r.date))].sort((a,b)=>{
+    const pa=a.match(/(\d+)\/(\d+)/),pb=b.match(/(\d+)\/(\d+)/);
+    return (parseInt(pa[1])*100+parseInt(pa[2]))-(parseInt(pb[1])*100+parseInt(pb[2]));
+  });
+  if(allDatesArr.length){
+    const firstWedTs=new Date(2026,3,1).getTime(); // 2026-04-01 고정
+    const WED_MS=7*24*60*60*1000;
+    allDatesArr.forEach(d=>{
+      const wed=getSprintWednesdayTs(d);
+      if(wed!==null) allSprintNums.add(37+Math.round((wed-firstWedTs)/WED_MS));
+    });
+  }
+  [...allSprintNums].sort((a,b)=>a-b).forEach(sn=>{
+    const opt=document.createElement('option');
+    opt.value=sn;
+    opt.textContent='스프린트 '+sn;
+    sprintSel.appendChild(opt);
+  });
+
+  const picker=document.getElementById('w-date-picker');
+  const today=new Date();
+  const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  picker.value=todayStr;
+  picker.min='2026-01-01';
+  picker.max='2027-12-31';
+  document.getElementById('w-date').value='';
+  document.getElementById('w-date-preview').textContent='-';
+  document.getElementById('w-date-preview').style.color='var(--text-sub)';
+  document.getElementById('w-product').value='Siti';
+  document.getElementById('w-ver').value='';
+  document.getElementById('w-name').value='';
+  pairCount=1;
+  const pairsEl=document.getElementById('w-pairs');
+  pairsEl.innerHTML=makePair(0);
+  initChips(pairsEl.firstElementChild);
+  document.getElementById('weekModal').classList.add('open');
+}
+
+function closeWeekModal(){
+  document.getElementById('weekModal').classList.remove('open');
+}
+
+// ── 타임라인 ──────────────────────────────────────────
+const TEAM_COLORS={BE:'#5B4FCF',FE:'#1A9E6F',Des:'#C97B20',MKT:'#D94040'};
+const timelines=[];
+
+function parseDate(str){
+  // "4/7 (화)" → Date(2026,3,7)
+  const m=str.match(/(\d+)\/(\d+)/);
+  if(!m) return null;
+  return new Date(2026,parseInt(m[1])-1,parseInt(m[2]));
+}
+
+// 날짜→Y좌표 맵 공통 생성 함수
+function buildDateYMap(){
+  // tlOverlay가 position:fixed이므로 viewport 기준 Y 좌표 사용
+  const map={};
+  const days_ko=['일','월','화','수','목','금','토'];
+
+  sprintRows.forEach(s=>{
+    if(!s.startDate||!s.endDate) return;
+    const spCell=[...document.querySelectorAll('.sprint-cell')]
+      .find(el=>el.textContent.includes('스프린트 '+s.sprintNum));
+    if(!spCell) return;
+
+    const rect=spCell.getBoundingClientRect();
+    const spTop=rect.top;
+    const spBottom=rect.bottom;
+    const spH=spBottom-spTop;
+
+    const spDays=[];
+    const cur=new Date(s.startDate);
+    const end=new Date(s.endDate);
+    while(cur<=end){
+      spDays.push(cur.getMonth()+1+'/'+cur.getDate()+' ('+days_ko[cur.getDay()]+')');
+      cur.setDate(cur.getDate()+1);
+    }
+
+    const n=spDays.length;
+    spDays.forEach((label,i)=>{
+      if(!map[label]){
+        const t=spTop+spH*(i/n);
+        const b=spTop+spH*((i+1)/n);
+        map[label]={top:t,bottom:b,height:spH/n,mid:(t+b)/2};
+      }
+    });
+  });
+
+  return map;
+}
+
+function drawTimelines(){
+  const overlay=document.getElementById('tlOverlay');
+  if(!overlay) return;
+  overlay.innerHTML='';
+  if(!timelines.length) return;
+
+  const wrap=overlay.parentElement;
+  const wrapRect=wrap.getBoundingClientRect();
+
+  // 테이블의 모든 날짜 셀 수집 → 날짜순 정렬
+  const allDateCells=[...document.querySelectorAll('[data-date]')]
+    .filter((c,i,a)=>a.findIndex(x=>x.dataset.date===c.dataset.date&&x.dataset.col===c.dataset.col)===i)
+    .sort((a,b)=>parseDate(a.dataset.date)-parseDate(b.dataset.date));
+
+  // buildDateYMap으로 통일
+  const dateYMap=buildDateYMap();
+
+  // 날짜 목록 정렬
+  const sortedDates=Object.keys(dateYMap).sort((a,b)=>parseDate(a)-parseDate(b));
+
+  // 날짜 기반 Y 보간 함수
+  function getYForDate(dateStr){
+    const d=parseDate(dateStr);
+    if(!d) return null;
+    // 정확히 있는 날짜면 바로 반환
+    if(dateYMap[dateStr]) return dateYMap[dateStr];
+    // 앞뒤 날짜 사이 보간
+    let prev=null, next=null;
+    for(const sd of sortedDates){
+      const sd_d=parseDate(sd);
+      if(sd_d<=d) prev=sd;
+      if(sd_d>=d&&!next) next=sd;
+    }
+    if(prev&&next&&prev!==next){
+      const prevD=parseDate(prev), nextD=parseDate(next);
+      const ratio=(d-prevD)/(nextD-prevD);
+      const prevY=dateYMap[prev], nextY=dateYMap[next];
+      const top=prevY.bottom+(nextY.top-prevY.bottom)*ratio;
+      return {top, bottom:top+prevY.height, height:prevY.height};
+    }
+    // 마지막 날짜 이후: 마지막 행에서 날짜 차이만큼 아래로 연장
+    if(prev&&!next){
+      const prevD=parseDate(prev);
+      const prevY=dateYMap[prev];
+      const dayDiff=(d-prevD)/(1000*60*60*24);
+      const top=prevY.top+dayDiff*prevY.height;
+      return {top, bottom:top+prevY.height, height:prevY.height};
+    }
+    if(next) return {...dateYMap[next]};
+    return null;
+  }
+
+  timelines.forEach((tl,ti)=>{
+    let colCells=[...document.querySelectorAll(`[data-col="${tl.col}"]`)];
+
+    // 배포일 셀 없으면 헤더 th로 X 좌표 계산
+    let colRect=null;
+    if(colCells.length>0){
+      colRect=colCells[0].getBoundingClientRect();
+    } else {
+      const th=document.querySelector(`th[data-col="${tl.col}"]`);
+      if(!th) return;
+      colRect=th.getBoundingClientRect();
+    }
+
+    const startD=parseDate(tl.startDate);
+    const endD=parseDate(tl.endDate);
+    if(!startD||!endD) return;
+
+    // tlOverlay는 position:fixed → viewport 기준 좌표 그대로 사용
+    const left=colRect.left+2;
+    const width=colRect.width-4;
+
+    const startY=getYForDate(tl.startDate);
+    const endY=getYForDate(tl.endDate);
+    if(!startY||!endY) return;
+
+    const top=startY.top+3;
+    const bottom=endY.bottom-3;
+    const height=bottom-top;
+
+    if(width<=0||height<=2) return;
+
+    const bar=document.createElement('div');
+    bar.className='tl-bar';
+    bar.dataset.tlIdx=ti;
+    bar.style.cssText=`top:${top}px;left:${left}px;width:${width}px;height:${height}px;background:${TEAM_COLORS[tl.team]||'#888'}`;
+
+    // 상단 핸들 (시작일 조정)
+    const topHandle=document.createElement('div');
+    topHandle.className='tl-handle tl-handle-top';
+    topHandle.addEventListener('mousedown', e=>startTlDrag(e, ti, 'start', colCells));
+    bar.appendChild(topHandle);
+
+    const labelEl=document.createElement('span');
+    labelEl.className='tl-label-text';
+    labelEl.style.whiteSpace='nowrap';
+    labelEl.style.overflow='hidden';
+    labelEl.style.textOverflow='ellipsis';
+    labelEl.style.flexShrink='1';
+    labelEl.style.minWidth='0';
+    labelEl.textContent=(tl.label&&tl.label!=='-'?tl.label:'-');
+    bar.appendChild(labelEl);
+
+    if(tl.days){
+      const daysEl=document.createElement('span');
+      daysEl.style.flexShrink='0';
+      daysEl.style.whiteSpace='nowrap';
+      daysEl.textContent=` (${tl.days}일)`;
+      bar.appendChild(daysEl);
+    }
+
+    const actions=document.createElement('div');
+    actions.className='tl-actions';
+    actions.innerHTML=`
+      <button class="tl-act-btn" onclick="editTimeline(${ti})" title="수정">${SVG_PEN}</button>
+      <button class="tl-act-btn" onclick="deleteTimeline(${ti})" title="삭제">${SVG_TRASH}</button>
+    `;
+    bar.appendChild(actions);
+
+    // 하단 핸들 (종료일 조정)
+    const botHandle=document.createElement('div');
+    botHandle.className='tl-handle tl-handle-bottom';
+    botHandle.addEventListener('mousedown', e=>startTlDrag(e, ti, 'end', colCells));
+    bar.appendChild(botHandle);
+
+    overlay.appendChild(bar);
+  });
+}
+
+// ── 타임라인 드래그 ───────────────────────────────────
+function startTlDrag(e, ti, side, colCells){
+  e.preventDefault();
+  e.stopPropagation();
+
+  const wrap=document.querySelector('.table-wrap');
+  const wrapRect=wrap.getBoundingClientRect();
+  const thead=document.querySelector('#scheduleTable thead');
+  const theadBottom=thead?thead.getBoundingClientRect().bottom:wrapRect.top;
+
+  // viewport 기준 dateYMap
+  const dateYMap=buildDateYMap();
+
+  // 스프린트 기간 날짜만 드래그 가능
+  const days_ko=['일','월','화','수','목','금','토'];
+  const validDates=new Set();
+  sprintRows.forEach(s=>{
+    if(!s.startDate||!s.endDate) return;
+    const cur=new Date(s.startDate);
+    const end=new Date(s.endDate);
+    while(cur<=end){
+      validDates.add(`${cur.getMonth()+1}/${cur.getDate()} (${days_ko[cur.getDay()]})`);
+      cur.setDate(cur.getDate()+1);
+    }
+  });
+  // 배포일도 포함
+  [...document.querySelectorAll('[data-date]')].forEach(c=>validDates.add(c.dataset.date));
+
+  const allDateEntries=Object.entries(dateYMap)
+    .filter(([d])=>validDates.size===0||validDates.has(d))
+    .map(([date,y])=>({date,d:parseDate(date),mid:y.mid||(y.top+y.bottom)/2}))
+    .filter(x=>x.d).sort((a,b)=>a.d-b.d);
+
+  function getNearestDate(clientY){
+    let best=null,bestDist=Infinity;
+    allDateEntries.forEach(item=>{
+      const dist=Math.abs(clientY-item.mid);
+      if(dist<bestDist){bestDist=dist;best=item;}
+    });
+    return best;
+  }
+
+  const ghost=document.createElement('div');
+  ghost.style.cssText='position:fixed;background:rgba(0,0,0,0.15);border:2px dashed rgba(255,255,255,0.7);border-radius:3px;pointer-events:none;z-index:9999;font-size:10px;color:#fff;padding:2px 6px;display:flex;align-items:center';
+  document.body.appendChild(ghost);
+  let colRect=colCells.length>0
+    ?colCells[0].getBoundingClientRect()
+    :(document.querySelector(`th[data-col="${timelines[ti].col}"]`)?.getBoundingClientRect()||null);
+  if(!colRect){ghost.remove();return;}
+
+  function onMove(ev){
+    const near=getNearestDate(ev.clientY);
+    if(!near) return;
+    const tl=timelines[ti];
+    const startD=side==='start'?near.d:parseDate(tl.startDate);
+    const endD=side==='end'?near.d:parseDate(tl.endDate);
+    if(!startD||!endD||startD>endD) return;
+    const startKey=side==='start'?near.date:tl.startDate;
+    const endKey=side==='end'?near.date:tl.endDate;
+    const sY=dateYMap[startKey], eY=dateYMap[endKey];
+    if(!sY||!eY) return;
+    // ghost: dateYMap이 viewport 기준이므로 fixed position 그대로 사용
+    const scrollTop=wrap.scrollTop||0;
+    const thead=document.querySelector('#scheduleTable thead');
+    const theadBottom=thead?thead.getBoundingClientRect().bottom:0;
+    const ghostTop=Math.max(sY.top, theadBottom);
+    const ghostH=Math.max(eY.bottom-ghostTop, 4);
+    ghost.style.cssText=`position:fixed;background:rgba(0,0,0,0.15);border:2px dashed rgba(255,255,255,0.7);border-radius:3px;pointer-events:none;z-index:9999;font-size:10px;color:#fff;padding:2px 6px;display:flex;align-items:center;left:${colRect.left}px;top:${ghostTop}px;width:${colRect.width}px;height:${ghostH}px;overflow:hidden`;
+    ghost.textContent=`${near.date} (${calcWorkingDays(startD,endD,tl.team)}일)`;
+  }
+
+  function onUp(ev){
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+    ghost.remove();
+    const near=getNearestDate(ev.clientY);
+    if(!near) return;
+    const tl=timelines[ti];
+    const newStart=side==='start'?near.date:tl.startDate;
+    const newEnd=side==='end'?near.date:tl.endDate;
+    const sd=parseDate(newStart),ed=parseDate(newEnd);
+    if(!sd||!ed||sd>ed) return;
+    const days=calcWorkingDays(sd,ed,tl.team);
+    timelines[ti]={...tl,startDate:newStart,endDate:newEnd,days};
+    drawTimelines();
+    showToast(`타임라인 기간이 ${newStart} ~ ${newEnd} (${days}일)로 변경됐습니다`);dbSave();
+  }
+
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
+}
+
+function deleteTimeline(ti){
+  tlDeleteIdx=ti;
+  const tl=timelines[ti];
+  const colLabel=(TEAM_COLS[tl.team]||[]).find(c=>c.v===tl.col)?.l||tl.col;
+  const parts=[tl.team, colLabel];
+  if(tl.label) parts.push(tl.label);
+  parts.push(`${tl.startDate} ~ ${tl.endDate}`);
+  document.getElementById('tlDeleteTarget').textContent=parts.join(' · ');
+  document.getElementById('tlDeleteModal').classList.add('open');
+}
+
+function closeTlDeleteModal(){
+  document.getElementById('tlDeleteModal').classList.remove('open');
+  tlDeleteIdx=-1;
+}
+
+function executeTlDelete(){
+  if(tlDeleteIdx<0) return;
+  timelines.splice(tlDeleteIdx,1);
+  closeTlDeleteModal();
+  drawTimelines();
+  showToast('타임라인이 삭제되었습니다');dbSave();
+}
+
+let tlDeleteIdx=-1;
+
+function editTimeline(ti){
+  const tl=timelines[ti];
+  // 작업 일정 모달 열고 기존 값 채워넣기
+  document.getElementById('timelineEntries').innerHTML='';
+  tlEntryCount=0;
+  document.getElementById('taskModal').classList.add('open');
+
+  // 한 항목 추가 후 기존 값 설정
+  addTimelineEntry(true);
+  const idx=tlEntryCount-1;
+  document.getElementById(`tl-team-${idx}`).value=tl.team;
+  updateColOpts(idx);
+  document.getElementById(`tl-col-${idx}`).value=tl.col;
+  document.getElementById(`tl-start-${idx}`).value=tl.startDate;
+  document.getElementById(`tl-end-${idx}`).value=tl.endDate;
+  document.getElementById(`tl-label-${idx}`).value=tl.label||'';
+  calcTlDays(idx);
+
+  // 저장 시 기존 항목 교체
+  const saveBtn=document.querySelector('#taskModal .btn-primary');
+  saveBtn.textContent='저장하기';
+  saveBtn.onclick=function(){
+    const team=document.getElementById(`tl-team-${idx}`).value;
+    const col=document.getElementById(`tl-col-${idx}`).value;
+    const start=document.getElementById(`tl-start-${idx}`).value;
+    const end=document.getElementById(`tl-end-${idx}`).value;
+    const label=document.getElementById(`tl-label-${idx}`).value.trim();
+    const sd=parseDate(start), ed=parseDate(end);
+    const days=(sd&&ed&&ed>=sd)?calcWorkingDays(sd,ed,team):0;
+    timelines[ti]={team,col,startDate:start,endDate:end,label,days};
+    closeTaskModal();
+    saveBtn.textContent='추가하기';
+    saveBtn.onclick=submitTaskRow;
+    drawTimelines();
+    showToast('타임라인이 수정되었습니다');dbSave();
+  };
+}
+
+const TEAM_COLS={
+  BE:[{v:'be_siti',l:'Siti'},{v:'be_admin',l:'Admin'},{v:'be_data',l:'Data'}],
+  FE:[{v:'fe_siti',l:'Siti'},{v:'fe_admin',l:'Admin'},{v:'fe_event',l:'Event Code'}],
+  Des:[{v:'des_siti',l:'Siti'},{v:'des_admin',l:'Admin'},{v:'des_mkt',l:'MKT'}],
+  MKT:[{v:'mkt_cont',l:'Contents'},{v:'mkt_evt',l:'Events'}],
+};
+
+function calcWorkingDays(startDate, endDate, teamVal){
+  // 파트별 checkedDates 수집
+  const partMap={BE:'sp-wd-be',FE:'sp-wd-fe',Des:'sp-wd-des',MKT:'sp-wd-mkt'};
+  const partId=teamVal?partMap[teamVal]:null;
+  const checkedSet=new Set();
+  if(partId){
+    sprintRows.forEach(s=>{
+      if(s.checkedDates&&s.checkedDates[partId]){
+        s.checkedDates[partId].forEach(d=>checkedSet.add(d));
+      }
+    });
+  }
+
+  const days_ko=['일','월','화','수','목','금','토'];
+  let count=0;
+  const d=new Date(startDate);
+  while(d<=endDate){
+    const dow=d.getDay();
+    if(dow!==0&&dow!==6){
+      if(checkedSet.size>0){
+        // checkedDates가 있으면 체크된 날짜만 카운트
+        const label=`${d.getMonth()+1}/${d.getDate()} (${days_ko[dow]})`;
+        if(checkedSet.has(label)) count++;
+      } else {
+        // checkedDates 없으면 토·일만 제외
+        count++;
+      }
+    }
+    d.setDate(d.getDate()+1);
+  }
+  return count;
+}
+
+function calcTlDays(idx){
+  const start=parseDate(document.getElementById(`tl-start-${idx}`)?.value||'');
+  const end=parseDate(document.getElementById(`tl-end-${idx}`)?.value||'');
+  const team=document.getElementById(`tl-team-${idx}`)?.value||'';
+  const el=document.getElementById(`tl-days-${idx}`);
+  if(!el) return;
+  if(start&&end&&end>=start){
+    const days=calcWorkingDays(start,end,team);
+    el.textContent=`${days}일`;
+    el.style.color='var(--text)';
+  } else {
+    el.textContent='-';
+    el.style.color='var(--text-sub)';
+  }
+}
+
+function updateColOpts(idx){
+  const team=document.getElementById(`tl-team-${idx}`).value;
+  const colSel=document.getElementById(`tl-col-${idx}`);
+  colSel.innerHTML=TEAM_COLS[team].map(c=>`<option value="${c.v}">${c.l}</option>`).join('');
+  // 파트 변경 시 날짜 옵션 갱신
+  updateTlDateOpts(idx, team);
+}
+
+function updateTlDateOpts(idx, teamVal){
+  const BASE_WED=new Date(2026,3,1).getTime();
+  const WED_MS=7*24*60*60*1000;
+  const DAY_MS=24*60*60*1000;
+  const days_ko=['일','월','화','수','목','금','토'];
+  const partMap={BE:'sp-wd-be',FE:'sp-wd-fe',Des:'sp-wd-des',MKT:'sp-wd-mkt'};
+  const partId=partMap[teamVal];
+
+  // 전체 날짜 수집
+  const allDates=[];
+  sprintRows.forEach(s=>{
+    if(s.startDate&&s.endDate){
+      const cur=new Date(s.startDate);
+      const end=new Date(s.endDate);
+      while(cur<=end){
+        const dow=cur.getDay();
+        if(dow!==0&&dow!==6){
+          const label=`${cur.getMonth()+1}/${cur.getDate()} (${days_ko[dow]})`;
+          if(!allDates.includes(label)) allDates.push(label);
+        }
+        cur.setDate(cur.getDate()+1);
+      }
+    }
+  });
+  rows.forEach(r=>{ if(r.date&&!allDates.includes(r.date)) allDates.push(r.date); });
+  allDates.sort((a,b)=>parseDate(a)-parseDate(b));
+
+  // 파트별 체크된 날짜 필터
+  let filtered=allDates;
+  if(partId){
+    const checkedSet=new Set();
+    sprintRows.forEach(s=>{
+      if(s.checkedDates&&s.checkedDates[partId]){
+        s.checkedDates[partId].forEach(d=>checkedSet.add(d));
+      }
+    });
+    if(checkedSet.size>0) filtered=allDates.filter(d=>checkedSet.has(d));
+  }
+
+  const newOpts=`<option value="">-</option>`+filtered.map(d=>`<option value="${d}">${d}</option>`).join('');
+  const startSel=document.getElementById(`tl-start-${idx}`);
+  const endSel=document.getElementById(`tl-end-${idx}`);
+  if(startSel) startSel.innerHTML=newOpts;
+  if(endSel) endSel.innerHTML=newOpts;
+}
+
+let tlEntryCount=0;
+function addTimelineEntry(isDefault=false){
+  const container=document.getElementById('timelineEntries');
+  const idx=tlEntryCount++;
+
+  // 스프린트 전체 날짜 생성 (각 스프린트 수요일~화요일)
+  const BASE_WED=new Date(2026,3,1).getTime();
+  const WED_MS=7*24*60*60*1000;
+  const DAY_MS=24*60*60*1000;
+  const days_ko=['일','월','화','수','목','금','토'];
+
+  // 존재하는 스프린트 기간 내 날짜 수집
+  const allDates=[];
+
+  // sprintRows에 startDate/endDate 있으면 그 기간 사용
+  sprintRows.forEach(s=>{
+    if(s.startDate&&s.endDate){
+      const cur=new Date(s.startDate);
+      const end=new Date(s.endDate);
+      while(cur<=end){
+        const dow=cur.getDay();
+        if(dow!==0&&dow!==6){
+          const label=`${cur.getMonth()+1}/${cur.getDate()} (${days_ko[dow]})`;
+          if(!allDates.includes(label)) allDates.push(label);
+        }
+        cur.setDate(cur.getDate()+1);
+      }
+    } else {
+      const wedTs=BASE_WED+(s.sprintNum-37)*WED_MS;
+      for(let d=0;d<7;d++){
+        const dt=new Date(wedTs+d*DAY_MS);
+        const dow=dt.getDay();
+        if(dow===0||dow===6) continue;
+        const label=`${dt.getMonth()+1}/${dt.getDate()} (${days_ko[dow]})`;
+        if(!allDates.includes(label)) allDates.push(label);
+      }
+    }
+  });
+
+  if(allDates.length===0){
+    const snSet=new Set();
+    rows.forEach(r=>{const sn=r._sprintNum||r.sprint_num;if(sn)snSet.add(Number(sn));});
+    [...snSet].forEach(sn=>{
+      const wedTs=BASE_WED+(sn-37)*WED_MS;
+      for(let d=0;d<7;d++){
+        const dt=new Date(wedTs+d*DAY_MS);
+        const dow=dt.getDay();
+        if(dow===0||dow===6) continue;
+        const label=`${dt.getMonth()+1}/${dt.getDate()} (${days_ko[dow]})`;
+        if(!allDates.includes(label)) allDates.push(label);
+      }
+    });
+  }
+
+  rows.forEach(r=>{ if(r.date&&!allDates.includes(r.date)) allDates.push(r.date); });
+  allDates.sort((a,b)=>parseDate(a)-parseDate(b));
+
+  // 현재 선택된 파트 기준 체크된 날짜만 필터링하는 함수
+  function getFilteredDates(teamVal){
+    if(!teamVal) return allDates;
+    // 파트 → sp-wd-* 매핑
+    const partMap={BE:'sp-wd-be',FE:'sp-wd-fe',Des:'sp-wd-des',MKT:'sp-wd-mkt'};
+    const partId=partMap[teamVal];
+    if(!partId) return allDates;
+    // sprintRows에 checkedDates가 있는 경우 체크된 날짜만
+    const checkedSet=new Set();
+    sprintRows.forEach(s=>{
+      if(s.checkedDates&&s.checkedDates[partId]){
+        s.checkedDates[partId].forEach(d=>checkedSet.add(d));
+      }
+    });
+    if(checkedSet.size===0) return allDates; // checkedDates 없으면 전체
+    return allDates.filter(d=>checkedSet.has(d));
+  }
+
+  const filteredDates=getFilteredDates('BE'); // 초기값 BE
+  const opts=`<option value="">-</option>`+filteredDates.map(d=>`<option value="${d}">${d}</option>`).join('');
+  const initCols=TEAM_COLS['BE'].map(c=>`<option value="${c.v}">${c.l}</option>`).join('');
+
+  const card=document.createElement('div');
+  card.id=`tl-entry-${idx}`;
+  card.className='tl-entry-row';
+  card.style.cssText='display:block;border:0.5px solid var(--border-md);border-radius:var(--radius-sm);padding:12px;background:var(--bg);position:relative';
+
+  const deleteBtn=isDefault?'':`<button class="icon-btn del" onclick="removeTlEntry(${idx})" title="삭제" style="position:absolute;top:8px;right:8px;width:22px;height:22px">${SVG_TRASH}</button>`;
+
+  card.innerHTML=`
+    ${deleteBtn}
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>파트 <span style="color:#D94040">*</span></label>
+      <select id="tl-team-${idx}" style="width:100%" onchange="updateColOpts(${idx})">
+        <option value="BE">BE</option>
+        <option value="FE">FE</option>
+        <option value="Des">Des</option>
+        <option value="MKT">MKT</option>
+      </select>
+    </div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>제품 <span style="color:#D94040">*</span></label>
+      <select id="tl-col-${idx}" style="width:100%">${initCols}</select>
+    </div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <label>작업 기간 <span style="color:#D94040">*</span></label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
+        <select id="tl-start-${idx}" style="flex:1" onchange="calcTlDays(${idx})">${opts}</select>
+        <span style="font-size:11px;color:var(--text-muted)">~</span>
+        <select id="tl-end-${idx}" style="flex:1" onchange="calcTlDays(${idx})">${opts}</select>
+        <div id="tl-days-${idx}" style="font-size:12px;font-weight:500;color:var(--text-sub);min-width:48px;padding:7px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);text-align:center;white-space:nowrap">-</div>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>작업 상세</label>
+      <input id="tl-label-${idx}" type="text" placeholder="작업 내용 설명" style="width:100%;background:var(--surface)"/>
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+function removeTlEntry(idx){
+  const el=document.getElementById(`tl-entry-${idx}`);
+  if(el) el.remove();
+}
+
+function openTaskModal(){
+  document.getElementById('timelineEntries').innerHTML='';
+  tlEntryCount=0;
+  document.getElementById('taskModal').classList.add('open');
+  addTimelineEntry(true);
+}
+
+function closeTaskModal(){
+  document.getElementById('taskModal').classList.remove('open');
+}
+
+function submitTaskRow(){
+  let added=0;
+  for(let i=0;i<tlEntryCount;i++){
+    const row=document.getElementById(`tl-entry-${i}`);
+    if(!row) continue;
+    const team=document.getElementById(`tl-team-${i}`)?.value;
+    const col=document.getElementById(`tl-col-${i}`)?.value;
+    const start=document.getElementById(`tl-start-${i}`)?.value;
+    const end=document.getElementById(`tl-end-${i}`)?.value;
+    const labelRaw=document.getElementById(`tl-label-${i}`)?.value.trim();
+    const label=labelRaw||'-';
+
+    if(!team||!col||!start||!end){
+      showToast('파트, 제품, 작업 기간은 필수 항목입니다');
+      if(!team) setFieldError(`tl-team-${i}`,'파트를 선택해주세요');
+      if(!start||!end) setFieldError(`tl-start-${i}`,'작업 기간을 선택해주세요');
+      return;
+    }
+    const sd=parseDate(start), ed=parseDate(end);
+    if(!sd||!ed||sd>ed){
+      showToast('작업 기간의 시작일이 종료일보다 늦을 수 없습니다');
+      return;
+    }
+    const days=calcWorkingDays(sd,ed,team);
+    timelines.push({team,col,startDate:start,endDate:end,label,days});
+    added++;
+  }
+  closeTaskModal();
+  setTimeout(drawTimelines,80);
+  showToast(added?`타임라인 ${added}개가 추가되었습니다`:'항목을 확인해주세요');if(added)dbSave();
+}
+
+function submitWeekRow(){
+  const selectedSprint=editTargetIdx>=0?
+    (rows[editTargetIdx]._sprintNum||0):
+    parseInt(document.getElementById('w-sprint').value);
+  const modal=document.getElementById('weekModal');
+  clearAllErrors(modal);
+  let hasError=false;
+
+  const dateInput=document.getElementById('w-date').value.trim();
+  const date=dateInput;
+  const product=document.getElementById('w-product').value;
+  const ver=document.getElementById('w-ver').value.trim()||'-';
+  const name=document.getElementById('w-name').value.trim();
+
+  if(!selectedSprint&&editTargetIdx<0){
+    setFieldError('w-sprint','스프린트를 선택해주세요');
+    hasError=true;
+  }
+  if(!date){
+    setFieldError('w-date-picker','배포일을 선택해주세요');
+    hasError=true;
+  }
+  if(!name){
+    setFieldError('w-name','명칭을 입력해주세요');
+    hasError=true;
+  }
+  if(hasError) return;
+
+  const gw=id=>(document.getElementById(id)?.value||'').trim();
+
+  const pairs=[...document.querySelectorAll('#w-pairs .pair-row')].map(row=>{
+    const checked=[...row.querySelectorAll('.chip-opt input:checked')].map(cb=>cb.value);
+    const menus=checked.join('·');
+    const db=checked.includes('DB')?'DB':'';
+    const detail=row.querySelector('.pair-detail').value.trim();
+    return {menus,db,detail};
+  });
+
+  const menuStr=pairs.map(p=>p.menus).filter(Boolean).join('\n');
+  const detailStr=pairs.map(p=>p.detail).filter(Boolean).join('\n');
+
+  if(editTargetIdx>=0){
+    const r=rows[editTargetIdx];
+    const oldGk=r._groupKey||(r.date+'|'+r.product+'|'+r.name);
+    // _groupKey 기준으로 기존 그룹 전체 삭제
+    const groupIdxs=rows.reduce((acc,x,i)=>{
+      const xGk=x._groupKey||(x.date+'|'+x.product+'|'+x.name);
+      if(xGk===oldGk) acc.push(i);
+      return acc;
+    },[]);
+    groupIdxs.reverse().forEach(i=>rows.splice(i,1));
+    // 새 페어로 다시 추가 (기존 groupKey 유지)
+    const baseStatus=r.status||'준비';
+    pairs.forEach((p)=>{
+      rows.push({
+        date, product, ver, name,
+        menu:p.menus, detail:p.detail,
+        wd_team:'5일', wd_be:'5일', wd_fe:'5일', wd_des:'5일', wd_mkt:'5일',
+        be_siti:'', be_admin:'', be_data:'',
+        fe_siti:'', fe_admin:'', fe_event:'',
+        des_siti:'', des_admin:'', des_mkt:'',
+        mkt_cont:'', mkt_evt:'', status:baseStatus,
+        _sprintNum:selectedSprint,
+        _groupKey:oldGk,
+      });
+    });
+    closeWeekModal();
+    render();
+    showToast(`"${name}" 일정이 수정되었습니다`);dbSave();
+    editTargetIdx=-1;
+    return;
+  }
+
+  // 페어 개수만큼 별도 row 추가 (첫 행에만 wd 값, 나머지는 동일 date+product 공유)
+  const newGroupKey=date+'|'+product+'|'+name+'|'+Date.now();
+  pairs.forEach((p,pi)=>{
+    rows.push({
+      date, product, ver, name,
+      menu:p.menus, detail:p.detail,
+      wd_team:'5일', wd_be:'5일', wd_fe:'5일', wd_des:'5일', wd_mkt:'5일',
+      be_siti:'', be_admin:'', be_data:'',
+      fe_siti:'', fe_admin:'', fe_event:'',
+      des_siti:'', des_admin:'', des_mkt:'',
+      mkt_cont:'', mkt_evt:'', status:'준비',
+      _sprintNum:selectedSprint,
+      _groupKey: newGroupKey,
+    });
+  });
+
+  closeWeekModal();
+  render();
+  showToast(`"${name}" 주간 일정이 추가되었습니다`);dbSave();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+document.getElementById('tlDeleteModal').addEventListener('click',e=>{if(e.target===document.getElementById('tlDeleteModal'))closeTlDeleteModal();});
+document.getElementById('sprintModal').addEventListener('click',e=>{if(e.target===document.getElementById('sprintModal'))closeSprintModal();});
+document.getElementById('weekModal').addEventListener('click',e=>{if(e.target===document.getElementById('weekModal'))closeWeekModal();});
+document.getElementById('taskModal').addEventListener('click',e=>{if(e.target===document.getElementById('taskModal'))closeTaskModal();});
+document.getElementById('deleteModal').addEventListener('click',e=>{if(e.target===document.getElementById('deleteModal'))closeDeleteModal();});
+document.getElementById('sprintDeleteModal').addEventListener('click',e=>{if(e.target===document.getElementById('sprintDeleteModal'))closeSprintDeleteModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSprintModal();closeWeekModal();closeTaskModal();closeDeleteModal();closeTlDeleteModal();closeSprintDeleteModal();}});
+
+// 오늘 날짜 기준 현재 분기 자동 펼침
+(function(){
+  const m=new Date().getMonth()+1;
+  const qi=m<=3?0:m<=6?1:m<=9?2:3;
+  kpiData[qi].open=true;
+})();
+
+document.querySelector('.table-wrap').addEventListener('scroll', ()=>{ if(timelines.length) drawTimelines(); });
+
+renderKPI();
+render();
+
+// DB에서 데이터 불러오기 (로드 시 로컬 초기 데이터 덮어씀)
+dbLoad();
+</script>
+</body>
+</html>
